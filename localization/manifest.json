@@ -1,0 +1,37 @@
+[
+  {
+    "path": "UX/ui-dash.ahk",
+    "original_sha256": "e19e68f3904e1e5d3eee1c1340a0e36a854670911e051d263a8ea4c1fb2e53c3",
+    "localized_sha256": "dd3569971806293f1eeca995eeddade1c65c3d6d8d8c660d03168634e23acba7"
+  },
+  {
+    "path": "UX/ui-editor.ahk",
+    "original_sha256": "7263286eb3a42eccf5edc39b43c74a8bf7c82f2671204d1ae654236c1de3f05d",
+    "localized_sha256": "6d8ff1532ae9d6009be275722ca76e297bc5907e726d1398ac89b71a4a1c72cf"
+  },
+  {
+    "path": "UX/ui-launcherconfig.ahk",
+    "original_sha256": "179c96d787fae5dd26cdf832e5226142ab3e4f1ff53e3b1f24cecddcf3e79947",
+    "localized_sha256": "4f0c66abd1c2b374313aa6dc994be00cec34877a2a8b90799e66eff6be6a7f92"
+  },
+  {
+    "path": "UX/ui-newscript.ahk",
+    "original_sha256": "e6279029591444d06adbfc718eef7436da1fb0f2b69873732aff89ca0f54a20a",
+    "localized_sha256": "77e3e6dd741591eac1a43e869972fc429af7e73f2e5ea92e2b51e87357f52860"
+  },
+  {
+    "path": "UX/ui-setup.ahk",
+    "original_sha256": "68b114a2ea4af9df54709a78ec5991a1f271097b29cb93757403fdb158746bc7",
+    "localized_sha256": "7dd9aa4a2b508e9be3a0b430314b6169f23e9bad04781eeee4f9705d3beea17f"
+  },
+  {
+    "path": "UX/ui-uninstall.ahk",
+    "original_sha256": "1e09fc4af5dc3e673d4facfe4fa849c6bdd0b29c67b0efd7f96aaf387fcef698",
+    "localized_sha256": "3a29dd8b5376d1c98b9e7f4e4ef020689bad63715df5080cc5d4ce59e856dbc0"
+  },
+  {
+    "path": "UX/WindowSpy.ahk",
+    "original_sha256": "b29f7037876d82deaaf200e79e9f1c139a4fc9d8b883101be1f93c62d3299967",
+    "localized_sha256": "fe629eb711568b83e8f7149d5d19222249dff6814f167d436df6a6c1697773f7"
+  }
+]

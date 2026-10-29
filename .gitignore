@@ -1,0 +1,14 @@
+# Local execution rules, progress and runtime evidence
+/AGENTS.md
+/TODO.md
+/DEVLOG.md
+/tmp/
+/backups/
+/hotkey_applied.json
+/localization/applied.json
+
+# Generated files
+__pycache__/
+*.py[cod]
+*.log
+*.tsv
