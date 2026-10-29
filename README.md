@@ -6,6 +6,12 @@
 
 原部署机器的本机、RDP 窗口/全屏、接收器拔插和 RDP 重连已实测通过。其他设备请按手册测试。
 
+## 🗺️ 控制流程
+
+![DJI 麦克风本机与 RDP 听写控制流程](docs/diagrams/dji-local-rdp.png)
+
+[交互版 HTML](docs/diagrams/dji-local-rdp.html)（在文件页下载后用浏览器打开） · [可编辑图源](docs/diagrams/dji-local-rdp.workflow.json)
+
 ## 🧰 准备条件
 
 DJI 接收器接入本机，发射器已配对；麦克风选择 `Wireless Mic Rx`。本机快捷键 `Alt+C`，远端 `Alt+X`。

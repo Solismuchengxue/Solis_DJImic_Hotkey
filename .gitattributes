@@ -9,6 +9,8 @@
 # Preserve BOM, CRLF and manifest hashes in clones and source archives.
 *.ahk -text
 *.ini -text
+# Keep the generated viewer's checked bytes and template whitespace intact.
+/docs/diagrams/*.html -text whitespace=-blank-at-eol
 
 # Keep upstream whitespace intact; added license comments are checked separately.
 /localization/UX/*.ahk whitespace=-blank-at-eol,cr-at-eol

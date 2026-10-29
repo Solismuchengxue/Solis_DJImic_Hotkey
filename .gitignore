@@ -6,6 +6,8 @@
 /backups/
 /hotkey_applied.json
 /localization/applied.json
+/.archify/
+/docs/diagrams/*.delivery.json
 
 # Generated files
 __pycache__/

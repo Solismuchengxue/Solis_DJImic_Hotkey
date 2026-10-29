@@ -7,3 +7,5 @@
 这些修改版及包含上游代码片段的 `tools/build_localization.py` 按上游 [GNU GPL v2](https://github.com/AutoHotkey/AutoHotkey/blob/v2.0.31/license.txt) 分发，许可全文见 [LICENSES/GPL-2.0.txt](LICENSES/GPL-2.0.txt)。源码按现状提供，不作担保。本项目不是 AutoHotkey 或 DJI 的官方发行版。
 
 独立的 DJI 绑定脚本、其他工具、测试和文档尚未指定单独的开放许可；公开仓库不自动授予它们额外的再分发许可。AutoHotkey 解释器、依赖 UX 文件及帮助文件由官方安装包提供，不随本仓库分发。
+
+`docs/diagrams/dji-local-rdp.html` 的查看器由 Archify 3.2.0 生成，其运行时代码沿用 [Archify 的 MIT 许可](LICENSES/Archify-MIT.txt)，著作权归 tt-a1i 与 Cocoon AI。HTML 内嵌的 JetBrains Mono 字体沿用 SIL Open Font License 1.1，完整许可已随字体 CSS 嵌入 HTML。流程内容与图源由本项目维护。

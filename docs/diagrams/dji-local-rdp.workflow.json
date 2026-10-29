@@ -1,0 +1,468 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "DJI 麦克风：本机与 RDP 听写控制流程",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "legend": {
+      "entries": {
+        "frontend": {"label": "听写界面"},
+        "backend": {"label": "AHK 逻辑"},
+        "security": {"label": "判断与拦截"},
+        "messagebus": {"label": "事件与按键"},
+        "external": {"label": "硬件与操作"}
+      }
+    },
+    "output": "docs/diagrams/dji-local-rdp.html",
+    "repository": {
+      "url": "git@github.com:Solismuchengxue/Solis_DJImic_Hotkey.git",
+      "revision": "839af29d217fa2403e9a14c8f13f3345ebf93611",
+      "link_mode": "local-only"
+    }
+  },
+  "lanes": [
+    {
+      "id": "input",
+      "label": "本机 · DJI 与 AHK"
+    },
+    {
+      "id": "local",
+      "label": "本机 · ChatGPT"
+    },
+    {
+      "id": "rdp",
+      "label": "RDP · 本机发送，远端接收"
+    },
+    {
+      "id": "volume",
+      "label": "本机 · 音量保护（独立运行）",
+      "variant": "exception"
+    }
+  ],
+  "mainPath": [
+    "button",
+    "receiver",
+    "valid_press",
+    "foreground",
+    "local_key",
+    "local_dictation"
+  ],
+  "nodes": [
+    {
+      "id": "button",
+      "lane": "input",
+      "col": 0,
+      "type": "external",
+      "label": "按 DJI 发射器按钮",
+      "sublabel": "一次开始，再按一次结束",
+      "sources": [
+        {
+          "path": "docs/PRD.md",
+          "line": 40,
+          "end_line": 43
+        }
+      ]
+    },
+    {
+      "id": "receiver",
+      "lane": "input",
+      "col": 1,
+      "type": "messagebus",
+      "label": "USB 接收器事件",
+      "sublabel": "AHK 接收 Raw Input",
+      "sources": [
+        {
+          "path": "docs/PRD.md",
+          "line": 41,
+          "end_line": 42
+        },
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 67,
+          "end_line": 79
+        },
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 228,
+          "end_line": 255
+        }
+      ]
+    },
+    {
+      "id": "valid_press",
+      "lane": "input",
+      "col": 2,
+      "type": "security",
+      "label": "有效 DJI 按下？",
+      "sublabel": "设备匹配 · 边沿 · 去抖",
+      "sources": [
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 56,
+          "end_line": 64
+        },
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 206,
+          "end_line": 225
+        },
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 249,
+          "end_line": 262
+        }
+      ]
+    },
+    {
+      "id": "foreground",
+      "lane": "input",
+      "col": 3,
+      "type": "security",
+      "label": "前台是 mstsc.exe？",
+      "sublabel": "按前台进程选择快捷键",
+      "sources": [
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 58,
+          "end_line": 64
+        },
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 256,
+          "end_line": 262
+        }
+      ]
+    },
+    {
+      "id": "ignored",
+      "lane": "local",
+      "col": 2,
+      "type": "backend",
+      "label": "结束本次事件",
+      "sublabel": "不匹配／重复／暂停",
+      "sources": [
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 58,
+          "end_line": 64
+        },
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 238,
+          "end_line": 255
+        }
+      ]
+    },
+    {
+      "id": "local_key",
+      "lane": "local",
+      "col": 4,
+      "type": "backend",
+      "label": "准备本机快捷键",
+      "sublabel": "失焦或暂停则放弃",
+      "sources": [
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 26,
+          "end_line": 30
+        },
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 267,
+          "end_line": 274
+        }
+      ]
+    },
+    {
+      "id": "local_dictation",
+      "lane": "local",
+      "col": 5,
+      "type": "frontend",
+      "label": "本机输入框听写",
+      "sublabel": "ChatGPT 录音并转写",
+      "sources": [
+        {
+          "path": "docs/MANUAL.md",
+          "line": 99,
+          "end_line": 102
+        },
+        {
+          "path": "docs/MANUAL.md",
+          "line": 145,
+          "end_line": 148
+        }
+      ]
+    },
+    {
+      "id": "remote_key",
+      "lane": "rdp",
+      "col": 4,
+      "type": "messagebus",
+      "label": "经 mstsc 转发快捷键",
+      "sublabel": "失焦或暂停则放弃",
+      "sources": [
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 58,
+          "end_line": 64
+        },
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 267,
+          "end_line": 274
+        },
+        {
+          "path": "docs/PRD.md",
+          "line": 25,
+          "end_line": 28
+        }
+      ]
+    },
+    {
+      "id": "remote_dictation",
+      "lane": "rdp",
+      "col": 5,
+      "type": "frontend",
+      "label": "远端输入框听写",
+      "sublabel": "窗口与全屏同一路由",
+      "sources": [
+        {
+          "path": "docs/MANUAL.md",
+          "line": 99,
+          "end_line": 102
+        },
+        {
+          "path": "docs/PRD.md",
+          "line": 49,
+          "end_line": 53
+        }
+      ]
+    },
+    {
+      "id": "guard_setting",
+      "lane": "volume",
+      "col": 0,
+      "type": "security",
+      "label": "开启音量保护",
+      "sublabel": "启用且 BlockVolumeUp=1",
+      "sources": [
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 38,
+          "end_line": 51
+        },
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 77,
+          "end_line": 85
+        },
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 91,
+          "end_line": 98
+        }
+      ]
+    },
+    {
+      "id": "guard_active",
+      "lane": "volume",
+      "col": 1,
+      "type": "security",
+      "label": "注册热键与键盘钩子",
+      "sublabel": "拦截所有设备音量加",
+      "sources": [
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 151,
+          "end_line": 164
+        }
+      ]
+    },
+    {
+      "id": "rdp_change",
+      "lane": "volume",
+      "col": 2,
+      "type": "backend",
+      "label": "监测 RDP 窗口变化",
+      "sublabel": "切入前台／改变几何",
+      "sources": [
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 174,
+          "end_line": 189
+        }
+      ]
+    },
+    {
+      "id": "rehook",
+      "lane": "volume",
+      "col": 3,
+      "type": "backend",
+      "label": "重装键盘钩子",
+      "sublabel": "仍启用且 mstsc 前台",
+      "sources": [
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 185,
+          "end_line": 196
+        }
+      ]
+    },
+    {
+      "id": "disable_guard",
+      "lane": "volume",
+      "col": 4,
+      "type": "external",
+      "label": "关闭／暂停／退出",
+      "sublabel": "托盘操作或开关置 0",
+      "sources": [
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 91,
+          "end_line": 108
+        },
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 124,
+          "end_line": 128
+        },
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 284,
+          "end_line": 296
+        }
+      ]
+    },
+    {
+      "id": "guard_released",
+      "lane": "volume",
+      "col": 5,
+      "type": "backend",
+      "label": "恢复原生音量加",
+      "sublabel": "取消注册、钩子和定时器",
+      "sources": [
+        {
+          "path": "DJI_Mic_Hotkey.ahk",
+          "line": 132,
+          "end_line": 147
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "wireless_button",
+      "from": "button",
+      "to": "receiver",
+      "label": "无线",
+      "variant": "emphasis"
+    },
+    {
+      "id": "raw_event",
+      "from": "receiver",
+      "to": "valid_press",
+      "label": "E9",
+      "variant": "emphasis"
+    },
+    {
+      "id": "accepted",
+      "from": "valid_press",
+      "to": "foreground",
+      "label": "有效",
+      "variant": "emphasis"
+    },
+    {
+      "id": "rejected",
+      "from": "valid_press",
+      "to": "ignored",
+      "label": "否则",
+      "role": "branch"
+    },
+    {
+      "id": "select_local",
+      "from": "foreground",
+      "to": "local_key",
+      "label": "否",
+      "role": "main",
+      "variant": "emphasis"
+    },
+    {
+      "id": "local_send",
+      "from": "local_key",
+      "to": "local_dictation",
+      "label": "Alt+C",
+      "variant": "emphasis"
+    },
+    {
+      "id": "select_remote",
+      "from": "foreground",
+      "to": "remote_key",
+      "label": "是",
+      "role": "branch",
+      "variant": "emphasis"
+    },
+    {
+      "id": "remote_send",
+      "from": "remote_key",
+      "to": "remote_dictation",
+      "label": "Alt+X",
+      "variant": "emphasis"
+    },
+    {
+      "id": "enable_volume",
+      "from": "guard_setting",
+      "to": "guard_active",
+      "label": "注册成功",
+      "variant": "security"
+    },
+    {
+      "id": "watch_rdp",
+      "from": "guard_active",
+      "to": "rdp_change",
+      "label": "200ms",
+      "variant": "security"
+    },
+    {
+      "id": "rearm_rdp",
+      "from": "rdp_change",
+      "to": "rehook",
+      "label": "变化后",
+      "variant": "security"
+    },
+    {
+      "id": "release_volume",
+      "from": "disable_guard",
+      "to": "guard_released",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "先点进真正的聊天输入框",
+      "items": [
+        "AHK 只运行在接收器所在本机；远端不运行此脚本。",
+        "发送前仍须启用且前台 HWND 未变；失焦便放弃。",
+        "按一次开始、再按一次结束，检查转写后手动发送。"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "声音与按钮走不同通道",
+      "items": [
+        "Wireless Mic Rx → 本机 ChatGPT；远端通过 RDP 录音重定向。",
+        "AHK 选择并发送快捷键，录音与转写由 ChatGPT 完成。"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "设备识别与音量取舍",
+      "items": [
+        "DJI：VID 2CA3 / PID 4011 / MI_00 / Col01；按下边沿，默认去抖 250ms。",
+        "设备识别只决定谁能触发听写；音量保护会连键盘音量加一起拦截。",
+        "仓库示例开关为 0，原部署文档记录为 1；本图未重新执行实机测试。"
+      ]
+    }
+  ]
+}
