@@ -309,8 +309,9 @@ class PortableApp {
         if !d
             return
         current := key = 'Local' ? this.Binding.LocalKey : this.Binding.RemoteKey
-        title := d.AddText('x20 y16 w356', '请按下新的组合键')
-        title.SetFont('s15 bold c193755')
+        d.SetFont('s15 bold c193755')
+        d.AddText('x20 y16 w356', '请按下新的组合键')
+        d.SetFont('s10 norm cDefault')
         d.AddText('x20 y64 w104', '当前快捷键')
         d.AddText('x128 y64 w242', PortableBinding.DisplayKey(current))
         d.AddText('x20 y103 w104', '新快捷键')
@@ -375,8 +376,9 @@ class PortableApp {
         d := this.BeginDialog('测试 DJI 按钮')
         if !d
             return
-        title := d.AddText('x20 y20 w375', '请短按一下 DJI 发射器按钮。')
-        title.SetFont('s15 bold c193755')
+        d.SetFont('s15 bold c193755')
+        d.AddText('x20 y20 w375', '请短按一下 DJI 发射器按钮。')
+        d.SetFont('s10 norm cDefault')
         signal := d.AddText('x20 y80 w374 h36', '等待按钮信号…')
         signal.SetFont('s13 bold c007B68')
         d.AddText('x20 y137 w374', '请回到 ChatGPT 的输入框验证听写。')

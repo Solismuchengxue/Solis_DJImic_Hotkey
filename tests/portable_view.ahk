@@ -28,6 +28,30 @@ ButtonPixel(button, x := 8, y := 8) {
     }
 }
 
+CheckTitleFits(dialog, title) {
+    for _, control in dialog {
+        if control.Type != 'Text' || control.Text != title
+            continue
+        rect := Buffer(16, 0)
+        DllCall('GetClientRect', 'ptr', control.Hwnd, 'ptr', rect)
+        available := NumGet(rect, 12, 'int')
+        dc := DllCall('GetDC', 'ptr', control.Hwnd, 'ptr')
+        font := SendMessage(0x31, 0, 0, control) ; WM_GETFONT
+        old := DllCall('gdi32\SelectObject', 'ptr', dc, 'ptr', font, 'ptr')
+        try {
+            ; Measure the complete title using its actual font and control width.
+            needed := DllCall('DrawTextW', 'ptr', dc, 'str', title, 'int', -1, 'ptr', rect, 'uint', 0x410)
+        } finally {
+            DllCall('gdi32\SelectObject', 'ptr', dc, 'ptr', old)
+            DllCall('ReleaseDC', 'ptr', control.Hwnd, 'ptr', dc)
+        }
+        Check(needed > 0 && available >= needed, Format('Title clipped at {} DPI: {} ({} px available, {} px needed)',
+            A_ScreenDPI, title, available, needed))
+        return
+    }
+    throw Error('Dialog title not found: ' title)
+}
+
 try {
     SplitPath A_ScriptDir,, &projectRoot
     view := ViewFixture(projectRoot)
@@ -69,7 +93,16 @@ try {
     PostMessage 0x101, 0x20, 0, button
     Sleep 150
     Check(view.Clicks = 1, 'Native keyboard activation must still invoke the button action')
-    FileAppend Format('PASS: native HWND styles, edit fields, checkbox, painting {:06X}/{:06X}, focus outline, disabled fallback and Space activation.', normal, pressed), '*'
+    view.EditShortcut('Local', '本机')
+    CheckTitleFits(view.Dialog, '请按下新的组合键')
+    view.CloseDialog()
+    ; This layout test exercises the real dialog without registering a device listener.
+    view.Binding.DefineProp('BeginObservation', {Call: (*) => 0})
+    view.TestDevice()
+    CheckTitleFits(view.Dialog, '请短按一下 DJI 发射器按钮。')
+    view.CloseDialog()
+    FileAppend Format('PASS: native controls, button painting {:06X}/{:06X}, focus, Space activation and dialog title bounds at {} DPI.',
+        normal, pressed, A_ScreenDPI), '*'
     ExitApp 0
 } catch as failure {
     FileAppend 'FAIL: ' failure.Message ' (line ' failure.Line ')', '*'
