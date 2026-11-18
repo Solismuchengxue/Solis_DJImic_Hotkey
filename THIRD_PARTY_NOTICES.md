@@ -8,4 +8,6 @@
 
 独立的 DJI 绑定脚本、其他工具、测试和文档尚未指定单独的开放许可；公开仓库不自动授予它们额外的再分发许可。AutoHotkey 解释器、依赖 UX 文件及帮助文件由官方安装包提供，不随本仓库分发。
 
+可选的 AutoHotkey v2 简体中文 CHM 由 wyagd001 翻译并发布。本仓库提供来源、版本和 SHA256 清单，安装时从译者仓库下载。[译者主页](https://wyagd001.github.io/) · [帮助文件清单](localization/help_manifest.json)
+
 `docs/diagrams/dji-local-rdp.html` 的查看器由 Archify 3.2.0 生成，其运行时代码沿用 [Archify 的 MIT 许可](LICENSES/Archify-MIT.txt)，著作权归 tt-a1i 与 Cocoon AI。HTML 内嵌的 JetBrains Mono 字体沿用 SIL Open Font License 1.1，完整许可已随字体 CSS 嵌入 HTML。流程内容与图源由本项目维护。

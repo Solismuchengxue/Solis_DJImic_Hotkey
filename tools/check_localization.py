@@ -10,6 +10,7 @@ backup = json.loads((root / 'backups' / '20261029_before_changes' / 'backup_mani
 changed = {entry['path'].replace('\\', '/'): entry for entry in patch}
 errors = []
 checks = []
+help_manifest = json.loads((root / 'localization' / 'help_manifest.json').read_text(encoding='utf-8'))
 for entry in patch:
     target = installation / entry['path']
     if hashlib.sha256(target.read_bytes()).hexdigest() != entry['localized_sha256']:
@@ -25,12 +26,15 @@ for entry in backup:
     name = entry['Path'].replace('\\', '/')
     if name in changed:
         continue
+    actual_hash = hashlib.sha256((installation / name).read_bytes()).hexdigest().upper()
+    if name == help_manifest['target'] and actual_hash == help_manifest['sha256'].upper():
+        continue
     if name == 'DJI_Mic_Hotkey.ahk' and hotkey_hash:
-        if hashlib.sha256((installation / name).read_bytes()).hexdigest().upper() != hotkey_hash:
+        if actual_hash != hotkey_hash:
             errors.append('Deployed hotkey differs from the applied version')
         continue
     protected += 1
-    if hashlib.sha256((installation / name).read_bytes()).hexdigest().upper() != entry['SHA256']:
+    if actual_hash != entry['SHA256']:
         errors.append(f'Unrelated file changed: {name}')
 result = {'result': 'PASS' if not errors else 'FAIL', 'localized_files': len(patch), 'other_files_unchanged': protected, 'ahk_load_checks': checks, 'errors': errors}
 (root / 'tmp' / 'localization_check.json').write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding='utf-8')

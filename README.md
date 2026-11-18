@@ -45,4 +45,4 @@
 
 **当前会屏蔽所有设备的音量加键。** 暂停或退出可恢复；也可用 Windows 音量滑块调节。
 
-已验证 AHK v2.0.31；常用 UX 已汉化，内置提示和帮助仍有英文。暂无通用安装包。汉化文件沿用上游 GPL v2；其余文件许可状态见[来源与许可](THIRD_PARTY_NOTICES.md)。
+已验证 AHK v2.0.31，常用界面已汉化，部分内置提示仍为英文。可选装由 wyagd001 发布的[简体中文离线帮助 2.0.19](docs/MANUAL.md#chinese-help)。汉化文件沿用上游 GPL v2，见[来源与许可](THIRD_PARTY_NOTICES.md)。

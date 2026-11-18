@@ -52,15 +52,13 @@ BlockVolumeUp=1
 <a id="autostart"></a>
 ## 3. 自启动
 
-原部署机器已添加，无需重复创建。新电脑可在下面的启动文件夹中，为正式 DJI 脚本创建快捷方式。登录后检查托盘，并完成一次 DJI 听写确认。
+1. 按 `Win+R` 输入 `shell:startup`，打开当前用户的启动文件夹。
+2. 在文件夹内新建快捷方式，位置填入[第 2 节](#run)的完整运行命令。快捷方式属性中的“起始位置”填 `D:\AutoHotkey\v2`。已有同一脚本的快捷方式时，检查它的属性即可。
+3. 注销后重新登录，或重启后登录。展开任务栏托盘，确认“DJI 听写绑定”已启用，再短按 DJI 按钮验证听写。绑定启动后在托盘显示状态。
 
-使用启动文件夹方式时：按 `Win+R` 输入 `shell:startup`，编辑对应快捷方式。
+创建后若要在当前会话立即使用，可双击该快捷方式。原部署机器已核对快捷方式，并验证手动运行该快捷方式可以启动绑定。重新登录触发仍待确认。
 
-- 目标：第 2 节的完整运行命令。
-- 起始位置：`D:\AutoHotkey`。
-- 取消自启动：删除该快捷方式；当前运行实例仍需从托盘退出。
-
-这是[当前用户登录启动](https://support.microsoft.com/en-gb/windows/experience/startup-boot/configure-startup-applications-in-windows?nochrome=true)，启动对象应为正式 DJI 脚本。
+要取消自启动，从启动文件夹移除快捷方式。要结束当前运行的绑定，从托盘选“退出”。[Microsoft 的启动应用说明](https://support.microsoft.com/en-gb/windows/experience/startup-boot/configure-startup-applications-in-windows?nochrome=true)
 
 <a id="verify"></a>
 ## 4. 改动后怎么测
@@ -91,7 +89,7 @@ BlockVolumeUp=1
 
 3. 重新打开 AutoHotkey 控制面板，检查中文菜单和设置。
 
-工具只应用清单中的 7 个 UX 文件，原版备份、当前安装和清单哈希必须一致。仓库不含个人备份；缺备份、已汉化或版本不匹配会拒绝覆盖。版本不同应先适配，不能改哈希绕过检查。当前仍有内置提示和帮助为英文。
+工具只应用清单中的 7 个 UX 文件，原版备份、当前安装和清单哈希必须一致。缺备份、已汉化或版本不匹配时，工具会拒绝覆盖。离线帮助可单独[安装中文版](#chinese-help)。
 
 <a id="chatgpt"></a>
 ### ChatGPT 与麦克风
@@ -116,6 +114,10 @@ BlockVolumeUp=1
 
 开始菜单打开 AutoHotkey 控制面板：新建脚本用于创建 `.ahk`；编辑器设置选择编辑工具；启动设置选择解释器。此处“启动设置”与 Windows 登录自启动分别配置。本项目无需编译 EXE。
 
+控制面板入口是 `D:\AutoHotkey\UX\ui-dash.ahk`，可在资源管理器中双击它。`AutoHotkey64.exe` 与 `AutoHotkeyUX.exe` 都是脚本解释器；单独双击 EXE 可能提示找不到同名 `.ahk`，不表示程序损坏。控制面板不负责启停 DJI 绑定，DJI 从自己的托盘菜单操作。
+
+`v2\AutoHotkey64.exe` 用来运行用户脚本；`UX\AutoHotkeyUX.exe` 是供控制面板、版本启动器等界面脚本使用的独立副本。本机两者当前内容相同，后续升级时可能不同，不必互相替换。
+
 练习：新建一个单独的 `.ahk`，保存为 UTF-8 带 BOM，然后双击运行：
 
 ```ahk
@@ -124,6 +126,15 @@ F8::MsgBox "这是我的第一个 AHK 脚本。"
 ```
 
 按 F8 弹窗。结束练习时退出这个练习脚本的托盘实例，保留 DJI 实例。更多见 [AHK 官方入门](https://github.com/AutoHotkey/AutoHotkeyDocs/blob/v2/docs/howto/WriteHotkeys.htm)。
+
+<a id="chinese-help"></a>
+### 安装中文离线帮助
+
+wyagd001 的社区译本为 **2.0.19**，适合查阅 v2 常用用法。对于解释器 **2.0.31** 的较新变化，请查同版本英文帮助。[译者主页](https://wyagd001.github.io/)
+
+1. 从 [帮助文件清单](../localization/help_manifest.json) 的 `source_url` 下载固定版本的 CHM，用 `Get-FileHash -Algorithm SHA256` 核对下载文件与清单的 `sha256`。
+2. 关闭已打开的帮助窗口，把 `D:\AutoHotkey\v2\AutoHotkey.chm` 复制到单独的备份目录，再把中文文件复制到原路径并命名为 `AutoHotkey.chm`。
+3. 打开 `D:\AutoHotkey\v2\AutoHotkey.chm`，确认目录和正文显示中文，首页版本为 `2.0.19`。恢复英文时，关闭帮助窗口并将同一安装版本的原文件复制回原路径。
 
 <a id="maintenance"></a>
 ## 7. 后续维护

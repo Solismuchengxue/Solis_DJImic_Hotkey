@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "target": "v2/AutoHotkey.chm",
+  "language": "zh-CN",
+  "document_version": "2.0.19",
+  "runtime_version": "2.0.31",
+  "publisher": "wyagd001",
+  "source_repository": "https://github.com/wyagd001/RuYi-Ahk",
+  "source_revision": "130e7d250544a45fadcd11d02e53cf6846339222",
+  "source_path": "引用程序/2.0/AutoHotkey2.0.chm",
+  "source_url": "https://raw.githubusercontent.com/wyagd001/RuYi-Ahk/130e7d250544a45fadcd11d02e53cf6846339222/引用程序/2.0/AutoHotkey2.0.chm",
+  "git_blob_sha1": "028ef3eeff6d7fef8add2477242759a102fb1db2",
+  "sha256": "8cce29b1ad4fb276b4c6926a95e80705cd073800b9aca8006b7cd3eb23ec1cca",
+  "bytes": 2715549,
+  "original_document_version": "2.0.31",
+  "original_sha256": "d9b11032baead403f92d7d74db875afac160dff8e927d36d7e9573d17c307164",
+  "version_note": "The pinned CHM homepage reports 2.0.19. Use the English 2.0.31 help for changes introduced after 2.0.19."
+}

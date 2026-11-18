@@ -6,6 +6,7 @@
 /backups/
 /hotkey_applied.json
 /localization/applied.json
+/localization/help_applied.json
 /.archify/
 /docs/diagrams/*.delivery.json
 
