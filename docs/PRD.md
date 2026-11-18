@@ -20,7 +20,7 @@
 
 ## 目标二：绑定本机和 RDP 听写快捷键
 
-复用 AutoHotkey 及现有脚本，将 DJI Mic Mini 2S 发射器按钮映射为对应位置的听写快捷键；需要支持调整绑定，不预设必须另做 GUI。
+复用 AutoHotkey 及现有脚本，将 DJI Mic Mini 2S 发射器按钮映射为对应位置的听写快捷键。便携版提供界面调整绑定，原部署可继续通过 INI 调整。
 
 | 场景 | 预期行为 |
 | --- | --- |
@@ -54,10 +54,22 @@
 
 `tests/volume_guard_rules.ahk` 验证配置、暂停和失败恢复；`tests/volume_guard_lifecycle.ahk` 实测原生热键占用/释放及重复停止，不捕获设备或发送按键。原设备筛选、路由与去抖回归保持通过。
 
+## 便携版 v0.1.0
+
+- 在 Windows 解压并双击程序，使用包内 AHK v2.0.31 离线打开主窗口，初始绑定为停止。若便携版已在运行，双击显示已有主窗口。新用户可启用绑定，分别录入并确认本机和 RDP 的组合键。新配置两端默认 `Ctrl+Shift+D`。
+- 主窗口和托盘同步显示绑定、自启状态。托盘可打开主窗口、暂停或恢复绑定、切换登录自启和退出。自启由用户设置，按当前用户登录时以 `--tray` 隐藏主窗口启动绑定。
+- 主窗口底部的 GitHub 图标与「使用说明」共用[项目手册入口](https://github.com/Solismuchengxue/Solis_DJImic_Hotkey/blob/main/docs/MANUAL.md)，版本号放在底部右侧。
+- 高级设置提供全局音量加拦截 `BlockVolumeUp` 和去抖间隔 `DebounceMs`。新配置默认关闭拦截，去抖默认 `250 毫秒`，范围为 `0–2000 毫秒`。开启拦截前标明会影响所有设备的音量加键。
+- 按钮测试只观察 DJI 发射器信号，结束后恢复此前绑定状态。实际听写按照本机和 RDP 的 ChatGPT 输入框结果验收。
+- 采用一个便携 INI。停止绑定后可随便携目录搬移配置，升级流程须保留原 INI。
+- 既有 AHK 脚本、INI 及启动入口须通过回归。便携包的源版本、运行时和目录见[发布约定](../release/README.md)。
+
+界面见[确认的概念图](ui/README.md)。便携版公开发布前，须单独验证 Windows 新目录解压启动、真机本机/RDP 听写、接收器拔插、RDP 重连及完整注销后重新登录的自启。原部署的历史结果仍按原部署记录。[路线图](ROADMAP.md)
+
 ## 执行约束与参考
 
 使用文档验收：用户无需了解排查历史，即可按 [MANUAL.md](MANUAL.md) 完成下载/安装、备份汉化、快捷键、补丁部署、启用测试，并查到自启、维护、原理和恢复。手册保持简短操作清单；README 提供入口。自启已由用户添加，配置完成与登录实测分开记录。
 
-沿用最小 AHK 方案；不为这两个目标预先增加驱动、服务或复杂平台。
+沿用 AHK v2 实现按钮绑定和便携界面。现有汉化安装的维护步骤仍集中在手册。
 
 必要参考：[AutoHotkey UX 官方源码](https://github.com/AutoHotkey/AutoHotkeyUX)、[AHK v2 热键文档](https://github.com/AutoHotkey/AutoHotkeyDocs/blob/v2/docs/Hotkeys.htm)、[Microsoft RDP 属性](https://learn.microsoft.com/en-us/azure/virtual-desktop/rdp-properties)。这些是实施参考，不是本机通过证明。

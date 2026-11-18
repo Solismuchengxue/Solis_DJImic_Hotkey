@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "version": "v0.1.0",
+  "outputDirectory": "release/<version>/<short-commit>/",
+  "autoHotkey": {
+    "version": "2.0.31",
+    "tag": "v2.0.31",
+    "archiveUrl": "https://github.com/AutoHotkey/AutoHotkey/releases/download/v2.0.31/AutoHotkey_2.0.31.zip",
+    "archiveSha256": "CA1A595ACA4528755D8D4CD7FED23D497A37BD9A0B6892072612D68DEE1BD00A",
+    "sourceArchiveUrl": "https://codeload.github.com/AutoHotkey/AutoHotkey/zip/refs/tags/v2.0.31",
+    "sourceArchiveSha256": "C002AD1CFC7ACB44AE3A55A721AE4975A90312FB001D7E4E42CF382EFEB26E60"
+  }
+}

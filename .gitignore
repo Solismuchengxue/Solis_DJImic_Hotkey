@@ -11,6 +11,9 @@
 /docs/diagrams/*.delivery.json
 
 # Generated files
+/release/*
+!/release/README.md
+!/release/manifest.json
 __pycache__/
 *.py[cod]
 *.log

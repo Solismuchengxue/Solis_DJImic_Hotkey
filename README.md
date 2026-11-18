@@ -1,10 +1,14 @@
 # Solis_DJImic_Hotkey
 
+<img src="assets/logo.png" alt="DJI 听写项目 Logo" width="88">
+
 汉化 AutoHotkey 常用界面，用 DJI 按钮触发本机或 RDP 的 ChatGPT 输入框听写。
 
 ## ✨ 用途与适用范围
 
 原部署机器已用 `Ctrl+Shift+D` 验证本机和 RDP 听写。其他场景和设备请按[测试步骤](docs/MANUAL.md#verify)检查。
+
+[查看便携版界面概念图](docs/ui/README.md)
 
 ## 🗺️ 控制流程
 
