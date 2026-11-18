@@ -1,6 +1,6 @@
 # Solis_DJImic_Hotkey 产品需求
 
-更新：2026-10-29。状态：常用界面汉化已应用；按钮已正式启用，本机/RDP 窗口/全屏及拔插/重连实测通过。
+更新：2026-11-18。状态：常用界面汉化已应用；用户已确认新快捷键在本机和 RDP 可用；完整登录自启仍待确认。
 
 范围以 [BLUEPRINT.md](BLUEPRINT.md) 的两个目标为准。
 
@@ -24,8 +24,8 @@
 
 | 场景 | 预期行为 |
 | --- | --- |
-| Acer 本机 | 按钮触发本机听写快捷键，当前预期为 `Alt+C` |
-| HP Z6 G4 的 mstsc RDP 前台 | 按钮触发远端听写快捷键，当前预期为 `Alt+X`；窗口与全屏均适用 |
+| Acer 本机 | 按钮发送 `Ctrl+Shift+D`，由本机 ChatGPT 听写 |
+| HP Z6 G4 的 mstsc RDP 前台 | 按钮发送 `Ctrl+Shift+D`，由远端 ChatGPT 听写，适用于窗口与全屏 |
 
 验收要求：
 
@@ -40,7 +40,7 @@
 - 本机为 Acer，AHK v2.0.31 位于 `D:\AutoHotkey\v2`；原脚本使用全局 `$Volume_Up` 按 mstsc 前台分流，原文件已备份保留。
 - 连接为“发射器 → 无线 → 手机用 USB Type-C 接收器 → Acer USB-C”，没有手机参与。用户确认 `Wireless Mic Rx` 是 DJI 接收器；只读元数据关联到 VID `2CA3` / PID `4011`。
 - 实机 Raw Input 观察确认 DJI 来自 MI_00/Col01、Consumer usage E9，键盘来自另一设备；临时观察已退出，普通文本键与音频没有记录。
-- 用户确认手动本机 Alt+C、远端 Alt+X 均能启动听写（Reported），截图确认它们是应用自带“单击快捷键”（一次开始、再次结束），按住/双击入口关闭。正式代码的基本场景、拔插和 RDP 重连均已由用户实测通过。
+- 用户曾用本机 `Alt+C`、远端 `Alt+X` 完成窗口/全屏、拔插及 RDP 重连测试（Reported）。2026-11-18 两端统一为 `Ctrl+Shift+D`，用户确认本机和 RDP 聊天输入框中的 DJI 短按听写均正常（Reported）。
 
 ## 当前按钮实现
 

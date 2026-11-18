@@ -4,7 +4,7 @@
 
 ## ✨ 用途与适用范围
 
-原部署机器的本机、RDP 窗口/全屏、接收器拔插和 RDP 重连已实测通过。其他设备请按手册测试。
+原部署机器已用 `Ctrl+Shift+D` 验证本机和 RDP 听写。其他场景和设备请按[测试步骤](docs/MANUAL.md#verify)检查。
 
 ## 🗺️ 控制流程
 
@@ -14,11 +14,11 @@
 
 ## 🧰 准备条件
 
-DJI 接收器接入本机，发射器已配对；麦克风选择 `Wireless Mic Rx`。本机快捷键 `Alt+C`，远端 `Alt+X`。
+接好 DJI 接收器并配对发射器，麦克风选择 `Wireless Mic Rx`。先在本机和远端的 ChatGPT 聊天输入框用 `Ctrl+Shift+D` 验证听写。
 
 ## 🚀 安装或接入
 
-从 [GitHub 仓库](https://github.com/Solismuchengxue/Solis_DJImic_Hotkey) 选择 Code → Download ZIP 并解压。按[安装步骤](docs/MANUAL.md#install)操作：安装 AHK v2.0.31 → 备份汉化 → 配置 ChatGPT → 部署 DJI 脚本 → 测试。原部署机器已配置好，可直接使用。
+从 [GitHub 仓库](https://github.com/Solismuchengxue/Solis_DJImic_Hotkey) 选择 Code → Download ZIP 并解压。按[安装步骤](docs/MANUAL.md#install)操作：安装 AHK v2.0.31 → 备份汉化 → 配置 ChatGPT → 部署 DJI 脚本 → 测试。
 
 ## 🎬 第一次使用
 

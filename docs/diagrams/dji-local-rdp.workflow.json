@@ -391,7 +391,7 @@
       "id": "local_send",
       "from": "local_key",
       "to": "local_dictation",
-      "label": "Alt+C",
+      "label": "Ctrl+Shift+D",
       "variant": "emphasis"
     },
     {
@@ -406,7 +406,7 @@
       "id": "remote_send",
       "from": "remote_key",
       "to": "remote_dictation",
-      "label": "Alt+X",
+      "label": "Ctrl+Shift+D",
       "variant": "emphasis"
     },
     {
