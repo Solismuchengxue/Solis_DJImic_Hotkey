@@ -23,10 +23,33 @@ class LateLegacyBinding extends PortableBinding {
     }
 }
 
+class CloseFixture extends PortableApp {
+    __New() {
+        this.Dialog := false
+        this.Binding := {Running: false}
+        this.Paused := false
+        this.Action := ''
+        this.Window := {Hide: (*) => this.Action := 'hide'}
+    }
+    Quit(*) => this.Action := 'quit'
+    CloseDialog(*) => this.Action := 'dialog'
+}
+
 path := A_ScriptDir '\..\tmp\便携 配置 ' DllCall('GetCurrentProcessId') '.ini'
 created := false
 result := 0
 try {
+    closeApp := CloseFixture()
+    for scenario in [[false,false,'quit'], [true,false,'hide'], [false,true,'hide']] {
+        closeApp.Binding.Running := scenario[1]
+        closeApp.Paused := scenario[2]
+        closeApp.Action := ''
+        closeApp.CloseMain()
+        Check(closeApp.Action = scenario[3], 'Close must exit only when stopped and hide while running or paused')
+    }
+    closeApp.Dialog := true
+    closeApp.CloseMain()
+    Check(closeApp.Action = 'dialog', 'A modal window closes before the main window')
     FileCopy A_ScriptDir '\..\config\DJI_Mic_Hotkey.ini', path, false
     created := true
     IniWrite 'retain me', path, 'Other', 'Unknown'
@@ -82,3 +105,6 @@ try {
         FileDelete path
 }
 ExitApp result
+
+; Resolve the real GUI methods without running the application entry point.
+#Include ..\app\Main.ahk

@@ -2,7 +2,7 @@
 
 [发布清单](manifest.json) 固定项目版本、上游 AutoHotkey 标签、运行时与对应源码的归档地址及 SHA256，以及候选包输出目录。打包时先校验上游归档哈希，再解包使用。上游许可及来源见[第三方声明](../THIRD_PARTY_NOTICES.md)。
 
-候选包输出到 `release/<version>/<short-commit>/`。`<version>` 取清单中的 `v0.1.0`，`<short-commit>` 取实际打包源码提交的 Git 短哈希。包从干净的指定源码提交构建，输出和本地运行数据由 Git 忽略。此目录中只跟踪本说明和清单。
+候选包输出到 `release/<version>/<short-commit>/`。`<version>` 取清单中的 `v0.1.0`，`<short-commit>` 取实际打包源码提交的 Git 短哈希。包从干净的指定源码提交构建，输出和本地运行数据由 Git 忽略。此目录跟踪本说明、固定输入清单和 [v0.1.0 发布说明](v0.1.0.md)。
 
 按清单下载 AutoHotkey 运行时 ZIP 和对应源码 ZIP，保存到 `tmp/portable_upstream/`。也可用 `-UpstreamDirectory` 指定归档目录。提交项目源码后，在项目根用 PowerShell 7 构建。
 

@@ -14,6 +14,7 @@
 /release/*
 !/release/README.md
 !/release/manifest.json
+!/release/v0.1.0.md
 __pycache__/
 *.py[cod]
 *.log

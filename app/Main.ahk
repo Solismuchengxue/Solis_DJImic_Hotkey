@@ -83,6 +83,7 @@ class PortableApp {
         this.Status.SetFont('s20 bold')
         this.StartButton := w.AddButton('x318 y41 w146 h38', '')
         this.StartButton.OnEvent('Click', (*) => this.ToggleBinding(false))
+        this.StartButton.OnNotify(-12, ObjBindMethod(PortableApp, 'PaintPrimary')) ; NM_CUSTOMDRAW
         w.AddText('x22 y92 w442 h1 0x10')
         w.AddText('x22 y104', '听写快捷键')
         w.SetFont('s10 norm c192B3C')
@@ -90,12 +91,14 @@ class PortableApp {
         for row, item in [['Local','本机'], ['Remote','RDP']] {
             y := 140 + (row - 1) * 37
             w.AddText('x26 y' y+5 ' w70', item[2])
-            this.KeyLabels[item[1]] := w.AddText('x96 y' y+5 ' w208', '')
+            this.KeyLabels[item[1]] := w.AddEdit('x96 y' y ' w214 h29 ReadOnly Center', '')
             button := w.AddButton('x376 y' y ' w88 h30', '更改')
             button.OnEvent('Click', ObjBindMethod(this, 'EditShortcut', item[1], item[2]))
         }
         w.AddText('x22 y218 w442 h1 0x10')
-        this.AutoStart := w.AddCheckbox('x22 y232 w430 h26', '登录时自动启动')
+        ; BS_LEFTTEXT and BS_LEFT keep the native checkbox and its accessible
+        ; name together, with the label at the left and the check at the right.
+        this.AutoStart := w.AddCheckbox('x22 y232 w442 h26 +0x120', '登录时自动启动')
         this.AutoStart.OnEvent('Click', ObjBindMethod(this, 'ToggleStartup'))
         this.Advanced := w.AddButton('x22 y272 w144 h33', '⚙ 高级设置')
         this.Advanced.OnEvent('Click', ObjBindMethod(this, 'EditAdvanced'))
@@ -113,13 +116,53 @@ class PortableApp {
         w.AddText('x330 y336 w134 Right c677889', version[1])
     }
 
+    static PaintPrimary(button, notice) {
+        ; Only paint an enabled push button during CDDS_PREPAINT. Let Windows
+        ; draw its usual disabled or high-contrast appearance.
+        if NumGet(notice, 3 * A_PtrSize, 'uint') != 1 || !button.Enabled
+            return 0
+        contrast := Buffer(8 + A_PtrSize, 0)
+        NumPut('uint', contrast.Size, contrast)
+        if !DllCall('SystemParametersInfoW', 'uint', 0x42, 'uint', contrast.Size, 'ptr', contrast, 'uint', 0)
+            || (NumGet(contrast, 4, 'uint') & 1)
+            return 0
+        dc := NumGet(notice, 4 * A_PtrSize, 'ptr')
+        saved := DllCall('gdi32\SaveDC', 'ptr', dc)
+        if !saved
+            return 0
+        try {
+            rect := Buffer(16, 0)
+            DllCall('GetClientRect', 'ptr', button.Hwnd, 'ptr', rect)
+            state := SendMessage(0xF2, 0, 0, button) ; BM_GETSTATE, native mouse and keyboard states
+            ; GDI COLORREF uses BBGGRR. Darken the teal for pressed and hot states.
+            color := state & 4 ? 0x4E5900 : (state & 0x200 ? 0x606E00 : 0x697900)
+            DllCall('gdi32\SetDCBrushColor', 'ptr', dc, 'uint', color)
+            brush := DllCall('gdi32\GetStockObject', 'int', 18, 'ptr')
+            DllCall('FillRect', 'ptr', dc, 'ptr', rect, 'ptr', brush)
+            font := SendMessage(0x31, 0, 0, button) ; WM_GETFONT
+            if font
+                DllCall('gdi32\SelectObject', 'ptr', dc, 'ptr', font)
+            DllCall('gdi32\SetBkMode', 'ptr', dc, 'int', 1)
+            DllCall('gdi32\SetTextColor', 'ptr', dc, 'uint', 0xFFFFFF)
+            DllCall('DrawTextW', 'ptr', dc, 'str', button.Text, 'int', -1, 'ptr', rect, 'uint', 0x825)
+            if (state & 8) && !(SendMessage(0x129, 0, 0, button) & 1) { ; focus visible per WM_QUERYUISTATE
+                inset := Max(2, Round(3 * A_ScreenDPI / 96))
+                DllCall('InflateRect', 'ptr', rect, 'int', -inset, 'int', -inset)
+                DllCall('DrawFocusRect', 'ptr', dc, 'ptr', rect)
+            }
+        } finally {
+            DllCall('gdi32\RestoreDC', 'ptr', dc, 'int', saved)
+        }
+        return 4 ; CDRF_SKIPDEFAULT
+    }
+
     BuildTray() {
         A_TrayMenu.Delete()
         A_TrayMenu.Add('打开主窗口', ObjBindMethod(this, 'Show'))
         A_TrayMenu.Add('恢复绑定', (*) => this.ToggleBinding(true))
         A_TrayMenu.Add('开机自启', ObjBindMethod(this, 'ToggleStartup'))
         A_TrayMenu.Add()
-        A_TrayMenu.Add('退出', (*) => ExitApp())
+        A_TrayMenu.Add('退出', ObjBindMethod(this, 'Quit'))
         A_TrayMenu.Default := '打开主窗口'
         A_TrayMenu.ClickCount := 2
     }
@@ -134,12 +177,14 @@ class PortableApp {
     CloseMain(*) {
         if this.Dialog
             this.CloseDialog()
-        else if this.Binding.Running
+        else if this.Binding.Running || this.Paused
             this.Window.Hide()
         else
-            ExitApp()
+            this.Quit()
         return true
     }
+
+    Quit(*) => ExitApp()
 
     StartFromTray() {
         try this.StartBinding()
@@ -256,6 +301,7 @@ class PortableApp {
         d.AddText('x20 y174 w356 c526272', '请在 ChatGPT 中使用相同的快捷键。')
         cancel := d.AddButton('x178 y210 w90 h32', '取消')
         save := d.AddButton('x278 y210 w90 h32 Default', '保存')
+        save.OnNotify(-12, ObjBindMethod(PortableApp, 'PaintPrimary'))
         cancel.OnEvent('Click', ObjBindMethod(this, 'CloseDialog'))
         save.OnEvent('Click', (*) => this.SaveShortcut(key, capture.Value, winKey.Value))
         d.Show('w390 h260')
@@ -289,6 +335,7 @@ class PortableApp {
         d.AddText('x20 y167 w360 c526272', '可设 0–2000 毫秒。按一次触发两次时，可适当调大。')
         cancel := d.AddButton('x187 y215 w90 h32', '取消')
         save := d.AddButton('x288 y215 w90 h32 Default', '保存')
+        save.OnNotify(-12, ObjBindMethod(PortableApp, 'PaintPrimary'))
         cancel.OnEvent('Click', ObjBindMethod(this, 'CloseDialog'))
         save.OnEvent('Click', (*) => this.SaveAdvanced(block.Value, delay.Value))
         d.Show('w400 h264')
@@ -317,6 +364,7 @@ class PortableApp {
         d.AddText('x20 y137 w374', '请回到 ChatGPT 的输入框验证听写。')
         retry := d.AddButton('x190 y192 w98 h32', '再测一次')
         done := d.AddButton('x300 y192 w90 h32 Default', '完成')
+        done.OnNotify(-12, ObjBindMethod(PortableApp, 'PaintPrimary'))
         retry.OnEvent('Click', (*) => signal.Text := '等待按钮信号…')
         done.OnEvent('Click', ObjBindMethod(this, 'CloseDialog'))
         try {
