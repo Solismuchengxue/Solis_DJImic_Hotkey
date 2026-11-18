@@ -61,12 +61,18 @@ class DjiMicHotkey {
     MatchesDevice(name) => InStr(name, this.DeviceToken) && InStr(name, this.Interface) && InStr(name, this.Collection)
 
     ProcessPress(handle, pressed, now, processName) {
+        if !this.TakePress(handle, pressed, now, this.Enabled)
+            return ''
+        return StrLower(processName) = 'mstsc.exe' ? this.RemoteKey : this.LocalKey
+    }
+
+    TakePress(handle, pressed, now, enabled) {
         wasPressed := this.Pressed.Get(handle, false)
         this.Pressed[handle] := pressed
-        if !this.Enabled || !pressed || wasPressed || now - this.LastTrigger < this.DebounceMs
-            return ''
+        if !enabled || !pressed || wasPressed || now - this.LastTrigger < this.DebounceMs
+            return false
         this.LastTrigger := now
-        return StrLower(processName) = 'mstsc.exe' ? this.RemoteKey : this.LocalKey
+        return true
     }
 
     Start(legacyTray := true) {
@@ -271,14 +277,18 @@ class DjiMicHotkey {
             loop count
                 if NumGet(usages,(A_Index-1)*2,'ushort') = 0xE9
                     pressed := true
-            target := WinExist('A')
-            processName := ''
-            try processName := WinGetProcessName('ahk_id ' target)
-            shortcut := this.ProcessPress(handle,pressed,A_TickCount,processName)
-            if shortcut != '' {
-                this.Log('detected', StrLower(processName) = 'mstsc.exe' ? 'rdp' : 'local')
-                SetTimer(ObjBindMethod(this,'SendShortcut',shortcut,target,this.Generation),-1)
-            }
+            this.DispatchReport(handle, pressed, A_TickCount)
+        }
+    }
+
+    DispatchReport(handle, pressed, now) {
+        target := WinExist('A')
+        processName := ''
+        try processName := WinGetProcessName('ahk_id ' target)
+        shortcut := this.ProcessPress(handle,pressed,now,processName)
+        if shortcut != '' {
+            this.Log('detected', StrLower(processName) = 'mstsc.exe' ? 'rdp' : 'local')
+            SetTimer(ObjBindMethod(this,'SendShortcut',shortcut,target,this.Generation),-1)
         }
     }
 

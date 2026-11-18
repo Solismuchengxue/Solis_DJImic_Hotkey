@@ -6,7 +6,7 @@
 
 这些修改版及包含上游代码片段的 `tools/build_localization.py` 按上游 [GNU GPL v2](https://github.com/AutoHotkey/AutoHotkey/blob/v2.0.31/license.txt) 分发，许可全文见 [LICENSES/GPL-2.0.txt](LICENSES/GPL-2.0.txt)。源码按现状提供，不作担保。本项目不是 AutoHotkey 或 DJI 的官方发行版。
 
-独立的 DJI 绑定脚本、其他工具、测试和文档尚未指定单独的开放许可；公开仓库不自动授予它们额外的再分发许可。AutoHotkey 解释器、依赖 UX 文件及帮助文件由官方安装包提供，不随本仓库分发。
+独立的 DJI 绑定脚本、其他工具、测试和文档尚未指定单独的开放许可。公开仓库不自动授予它们额外的再分发许可。Git 源码仓库不含 AutoHotkey 解释器。Windows 便携 ZIP 包含官方 AutoHotkey v2.0.31 的 x64 解释器、UX 文件、英文帮助和 GPL v2 许可。对应的上游源码 ZIP 与便携 ZIP 一同交付。七个 UX 汉化文件的修改源码保存在本仓库。[发布输入清单](release/manifest.json)
 
 可选的 AutoHotkey v2 简体中文 CHM 由 wyagd001 翻译并发布。本仓库提供来源、版本和 SHA256 清单，安装时从译者仓库下载。[译者主页](https://wyagd001.github.io/) · [帮助文件清单](localization/help_manifest.json)
 

@@ -10,6 +10,7 @@ class PortableBinding extends DjiMicHotkey {
             throw Error('未找到便携配置。请完整解压程序后重试。')
         super.__New(configPath)
         this.DialogOpen := false
+        this.Observer := false
     }
 
     SetDialogOpen(open) {
@@ -32,6 +33,52 @@ class PortableBinding extends DjiMicHotkey {
     }
 
     LegacyActive() => PortableBinding.LegacyRunning()
+
+    BeginObservation(callback) {
+        if this.Observer
+            return
+        if this.LegacyActive()
+            throw Error('请先从原版托盘退出 DJI 脚本，再测试便携版按钮。')
+        this.WasRunning := this.Running
+        this.SetEnabled(false)
+        this.Observer := callback
+        if !this.WasRunning {
+            try this.Start(false)
+            catch as failure {
+                this.Observer := false
+                this.SetEnabled(true)
+                throw failure
+            }
+        }
+    }
+
+    DispatchReport(handle, pressed, now) {
+        if !this.Observer {
+            super.DispatchReport(handle, pressed, now)
+            return
+        }
+        ; OnRaw calls this only for the matched HID collection. Observation does
+        ; not inspect the foreground application or enqueue a shortcut.
+        if this.TakePress(handle, pressed, now, true)
+            this.Observer.Call()
+    }
+
+    EndObservation() {
+        if !this.Observer
+            return
+        this.Observer := false
+        try {
+            if !this.WasRunning
+                this.Stop()
+            else if this.LegacyActive()
+                throw Error('原版脚本已启动，便携绑定已停止。请退出原版后再启动绑定。')
+            this.SetEnabled(true)
+        } catch as failure {
+            this.Stop()
+            this.Enabled := true
+            throw failure
+        }
+    }
 
     ; Write and validate a sibling copy. Rename only after native registration
     ; succeeds. Unknown sections and the other shortcut remain in that copy.

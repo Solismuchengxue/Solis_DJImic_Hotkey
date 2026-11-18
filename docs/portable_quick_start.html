@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DJI 听写便携版使用说明</title>
+<style>
+  body { max-width: 42rem; margin: 3rem auto; padding: 0 1.5rem; font: 1rem/1.65 system-ui, sans-serif; color: #192c36; }
+  a { color: #006a63; }
+  code { font-family: Consolas, monospace; }
+</style>
+<h1>DJI 听写便携版</h1>
+<ol>
+  <li>完整解压 ZIP 到可写的目录，双击 <code>DJI 听写.exe</code>，再点「启动绑定」。</li>
+  <li>在本机或远端的 ChatGPT 输入框确认快捷键可用，默认是 <kbd>Ctrl+Shift+D</kbd>。改键后，ChatGPT 的单击听写快捷键需与工具中对应的一行匹配。</li>
+  <li>短按一次 DJI 发射器按钮开始听写，再按一次结束。用 RDP 时，在远程桌面中启用麦克风重定向。</li>
+</ol>
+<h2>测试与维护</h2>
+<ul>
+  <li>「测试 DJI 按钮」可确认收到按钮事件。然后回到 ChatGPT 输入框验证转写。</li>
+  <li>运行时关闭窗口会收进托盘。托盘可暂停、恢复、切换开机自启和退出。</li>
+  <li>高级设置里的音量加拦截也会拦截键盘音量加。只在需要时开启。</li>
+  <li>移动目录前先从托盘退出。移动后开启应用检查自启状态。升级时将旧包的 <code>config/DJI_Mic_Hotkey.ini</code> 复制到新版的对应位置。</li>
+</ul>
+<p><a href="https://github.com/Solismuchengxue/Solis_DJImic_Hotkey/blob/main/docs/MANUAL.md">GitHub 项目手册</a></p>
+</html>

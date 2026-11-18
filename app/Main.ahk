@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2.0
 #Include %A_LineFile%\..\PortableBinding.ahk
+#Include %A_LineFile%\..\StartupLink.ahk
 ; The original standalone script uses Ignore. Here, a second launch must be
 ; allowed to ask the existing GUI to show itself, including from another copy.
 #SingleInstance Off
@@ -54,6 +55,7 @@ class PortableApp {
         this.Root := root
         this.Binding := PortableBinding(root '\config\DJI_Mic_Hotkey.ini')
         this.Binding.OnLegacyConflict := ObjBindMethod(this, 'PauseForLegacy')
+        this.Login := StartupLink(A_Startup, A_AhkPath, A_ScriptFullPath, root)
         this.Paused := false
         this.Dialog := false
         icon := this.Resource('logo.ico')
@@ -93,9 +95,12 @@ class PortableApp {
             button.OnEvent('Click', ObjBindMethod(this, 'EditShortcut', item[1], item[2]))
         }
         w.AddText('x22 y218 w442 h1 0x10')
-        this.AutoStart := w.AddCheckbox('x22 y232 w264 h26 Disabled', '登录时自动启动')
-        this.Advanced := w.AddButton('x22 y272 w144 h33 Disabled', '⚙ 高级设置')
-        this.TestButton := w.AddButton('x304 y272 w160 h33 Disabled', '测试 DJI 按钮')
+        this.AutoStart := w.AddCheckbox('x22 y232 w430 h26', '登录时自动启动')
+        this.AutoStart.OnEvent('Click', ObjBindMethod(this, 'ToggleStartup'))
+        this.Advanced := w.AddButton('x22 y272 w144 h33', '⚙ 高级设置')
+        this.Advanced.OnEvent('Click', ObjBindMethod(this, 'EditAdvanced'))
+        this.TestButton := w.AddButton('x304 y272 w160 h33', '测试 DJI 按钮')
+        this.TestButton.OnEvent('Click', ObjBindMethod(this, 'TestDevice'))
         w.AddText('x22 y322 w442 h1 0x10')
         helpIcon := w.AddPicture('x22 y337 w17 h17', this.Resource('github.png'))
         helpIcon.OnEvent('Click', (*) => Run(PortableApp.ManualURL))
@@ -112,8 +117,7 @@ class PortableApp {
         A_TrayMenu.Delete()
         A_TrayMenu.Add('打开主窗口', ObjBindMethod(this, 'Show'))
         A_TrayMenu.Add('恢复绑定', (*) => this.ToggleBinding(true))
-        A_TrayMenu.Add('开机自启', (*) => 0)
-        A_TrayMenu.Disable('开机自启')
+        A_TrayMenu.Add('开机自启', ObjBindMethod(this, 'ToggleStartup'))
         A_TrayMenu.Add()
         A_TrayMenu.Add('退出', (*) => ExitApp())
         A_TrayMenu.Default := '打开主窗口'
@@ -121,6 +125,7 @@ class PortableApp {
     }
 
     Show(*) {
+        this.Refresh()
         this.Window.Show('w488 h368 Restore')
         active := this.Dialog ? this.Dialog : this.Window
         WinActivate 'ahk_id ' active.Hwnd
@@ -174,15 +179,31 @@ class PortableApp {
     }
 
     Refresh() {
-        running := this.Binding.Running
-        state := running ? '运行中' : (this.Paused ? '已暂停' : '已停止')
+        running := this.Binding.Running && this.Binding.Enabled
+        state := this.Binding.Observer ? '测试中' : (running ? '运行中' : (this.Paused ? '已暂停' : '已停止'))
         this.Status.Text := state
         this.Status.SetFont(running ? 'c007B68' : 'c485764')
         this.StartButton.Text := running ? '停止绑定' : (this.Paused ? '恢复绑定' : '启动绑定')
         this.KeyLabels['Local'].Text := PortableBinding.DisplayKey(this.Binding.LocalKey)
         this.KeyLabels['Remote'].Text := PortableBinding.DisplayKey(this.Binding.RemoteKey)
-        A_TrayMenu.Rename('2&', running ? '暂停绑定' : '恢复绑定')
+        A_TrayMenu.Rename('2&', running ? '暂停绑定' : (this.Paused ? '恢复绑定' : '启动绑定'))
+        startup := this.Login.Status()
+        this.AutoStart.Value := startup = 'enabled'
+        this.AutoStart.Text := startup = 'stale' ? '登录时自动启动（路径已变，点击修复）' : '登录时自动启动'
+        if startup = 'enabled'
+            A_TrayMenu.Check('开机自启')
+        else
+            A_TrayMenu.Uncheck('开机自启')
         A_IconTip := 'DJI 听写 · ' state
+    }
+
+    ToggleStartup(*) {
+        if this.Dialog
+            return
+        try this.Login.SetEnabled(this.Login.Status() != 'enabled')
+        catch as failure
+            this.Warn(failure)
+        this.Refresh()
     }
 
     BeginDialog(title) {
@@ -204,12 +225,20 @@ class PortableApp {
     CloseDialog(*) {
         if !this.Dialog
             return
+        restoreError := false
+        try this.Binding.EndObservation()
+        catch as failure {
+            restoreError := failure
+            this.Paused := false
+        }
         this.Window.Opt('-Disabled')
         this.Dialog.Destroy()
         this.Dialog := false
         this.Binding.SetDialogOpen(false)
         this.Refresh()
         this.Show()
+        if restoreError
+            this.Warn(restoreError)
     }
 
     EditShortcut(key, label, *) {
@@ -242,6 +271,62 @@ class PortableApp {
             return
         }
         this.CloseDialog()
+    }
+
+    EditAdvanced(*) {
+        d := this.BeginDialog('高级设置')
+        if !d
+            return
+        block := d.AddCheckbox('x20 y20 w356 h29', '拦截音量加键')
+        block.SetFont('s12 bold c193755')
+        block.Value := this.Binding.BlockVolumeUp
+        d.AddText('x20 y60 w366 h42', '开启后，键盘和其他设备的音量加键也会被拦截。')
+        d.AddText('x20 y110 w364 h1 0x10')
+        d.AddText('x20 y130 w154 h25', '防重复触发间隔')
+        delay := d.AddEdit('x190 y124 w118 h28', String(this.Binding.DebounceMs))
+        d.AddUpDown('Range0-2000 +0x80', this.Binding.DebounceMs)
+        d.AddText('x318 y129 w52', '毫秒')
+        d.AddText('x20 y167 w360 c526272', '可设 0–2000 毫秒。按一次触发两次时，可适当调大。')
+        cancel := d.AddButton('x187 y215 w90 h32', '取消')
+        save := d.AddButton('x288 y215 w90 h32 Default', '保存')
+        cancel.OnEvent('Click', ObjBindMethod(this, 'CloseDialog'))
+        save.OnEvent('Click', (*) => this.SaveAdvanced(block.Value, delay.Value))
+        d.Show('w400 h264')
+    }
+
+    SaveAdvanced(block, delay) {
+        try {
+            if !RegExMatch(delay, '^\d{1,4}$') || Integer(delay) > 2000
+                throw Error('请输入 0 到 2000 之间的整数毫秒。')
+            this.Binding.SaveSettings('Behavior', Map('BlockVolumeUp', block, 'DebounceMs', Integer(delay)))
+        } catch as failure {
+            this.Warn(failure)
+            return
+        }
+        this.CloseDialog()
+    }
+
+    TestDevice(*) {
+        d := this.BeginDialog('测试 DJI 按钮')
+        if !d
+            return
+        title := d.AddText('x20 y20 w375', '请短按一下 DJI 发射器按钮。')
+        title.SetFont('s15 bold c193755')
+        signal := d.AddText('x20 y80 w374 h36', '等待按钮信号…')
+        signal.SetFont('s13 bold c007B68')
+        d.AddText('x20 y137 w374', '请回到 ChatGPT 的输入框验证听写。')
+        retry := d.AddButton('x190 y192 w98 h32', '再测一次')
+        done := d.AddButton('x300 y192 w90 h32 Default', '完成')
+        retry.OnEvent('Click', (*) => signal.Text := '等待按钮信号…')
+        done.OnEvent('Click', ObjBindMethod(this, 'CloseDialog'))
+        try {
+            this.Binding.BeginObservation(() => signal.Text := '✓ 已收到按钮信号')
+            this.Refresh()
+            d.Show('w412 h245')
+        } catch as failure {
+            this.CloseDialog()
+            this.Warn(failure)
+        }
     }
 
     Warn(failure) {
