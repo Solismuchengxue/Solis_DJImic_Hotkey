@@ -53,6 +53,7 @@ class PortableApp {
     __New(root) {
         this.Root := root
         this.Binding := PortableBinding(root '\config\DJI_Mic_Hotkey.ini')
+        this.Binding.OnLegacyConflict := ObjBindMethod(this, 'PauseForLegacy')
         this.Paused := false
         this.Dialog := false
         icon := this.Resource('logo.ico')
@@ -145,10 +146,16 @@ class PortableApp {
     }
 
     StartBinding() {
-        if PortableBinding.LegacyRunning()
+        if this.Binding.LegacyActive()
             throw Error('原版 DJI 听写脚本正在运行。请先从原版托盘退出，再启动便携绑定。')
         this.Binding.Start(false)
         this.Paused := false
+    }
+
+    PauseForLegacy() {
+        this.Paused := true
+        this.Refresh()
+        TrayTip '检测到原版 DJI 脚本，便携绑定已暂停。', 'DJI 听写'
     }
 
     ToggleBinding(fromTray) {

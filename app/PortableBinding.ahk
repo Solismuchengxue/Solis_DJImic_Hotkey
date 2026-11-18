@@ -18,10 +18,20 @@ class PortableBinding extends DjiMicHotkey {
     }
 
     CanSend(target, generation) {
-        if this.DialogOpen || !super.CanSend(target, generation)
+        if this.DialogOpen || !this.Running || generation != this.Generation
+            return false
+        if this.LegacyActive() {
+            this.Stop()
+            if this.HasOwnProp('OnLegacyConflict')
+                this.OnLegacyConflict.Call()
+            return false
+        }
+        if !super.CanSend(target, generation)
             return false
         return WinGetPID('ahk_id ' target) != DllCall('GetCurrentProcessId')
     }
+
+    LegacyActive() => PortableBinding.LegacyRunning()
 
     ; Write and validate a sibling copy. Rename only after native registration
     ; succeeds. Unknown sections and the other shortcut remain in that copy.

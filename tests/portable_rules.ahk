@@ -13,6 +13,16 @@ class SimulatedDiskFailure extends PortableBinding {
     }
 }
 
+class LateLegacyBinding extends PortableBinding {
+    LegacyActive() => this.OldScriptAppeared
+
+    Stop(*) {
+        ; Simulate only our own listener being released. Never register Raw Input.
+        this.Running := false
+        this.Generation += 1
+    }
+}
+
 path := A_ScriptDir '\..\tmp\便携 配置 ' DllCall('GetCurrentProcessId') '.ini'
 created := false
 result := 0
@@ -52,6 +62,14 @@ try {
     Check(!binding.CanSend(1, generation), 'A delayed modal press must remain suppressed after close')
     binding.Running := false
     Check(!binding.CanSend(1, binding.Generation), 'Stopped session must suppress dispatch')
+
+    late := LateLegacyBinding(path)
+    late.OldScriptAppeared := false
+    Check(!late.LegacyActive(), 'No legacy instance at portable startup')
+    late.Running := true
+    late.OldScriptAppeared := true
+    Check(!late.CanSend(1, late.Generation) && !late.Running && late.OldScriptAppeared,
+        'A later legacy instance must block the pending dispatch and stop only the portable listener')
 
     IniDelete path, 'Hotkeys'
     Check(PortableBinding(path).RemoteKey = '^+d' && DjiMicHotkey(path).RemoteKey = '!x', 'Portable and original omission defaults')
