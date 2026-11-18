@@ -1,6 +1,6 @@
 #Requires AutoHotkey v2.0
-#Include ..\app\PortableBinding.ahk
-#Include ..\app\StartupLink.ahk
+#Include ..\app\ui\PortableBinding.ahk
+#Include ..\app\ui\StartupLink.ahk
 #SingleInstance Off
 
 Check(value, message) {

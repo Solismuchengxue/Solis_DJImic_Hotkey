@@ -76,4 +76,4 @@ try {
     ExitApp 1
 }
 
-#Include ..\app\Main.ahk
+#Include ..\app\ui\Main.ahk

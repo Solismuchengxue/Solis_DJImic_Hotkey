@@ -1,6 +1,6 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Off
-#Include *i ..\DJI_Mic_Hotkey.ahk
+#Include ..\app\DJI_Mic_Hotkey.ahk
 
 Check(value, message) {
     if !value
@@ -11,7 +11,7 @@ if !IsSet(DjiMicHotkey) {
     ExitApp 1
 }
 try {
-    binding := DjiMicHotkey(A_ScriptDir '\..\DJI_Mic_Hotkey.ini')
+    binding := DjiMicHotkey(A_ScriptDir '\..\config\DJI_Mic_Hotkey.ini')
     Check(binding.MatchesDevice('HID#VID_2CA3&PID_4011&MI_00&Col01#redacted'), 'Observed DJI collection must match')
     Check(!binding.MatchesDevice('HID#VID_25A7&PID_FA70&MI_01&Col07#redacted'), 'Keyboard must not match')
     Check(!binding.MatchesDevice('HID#VID_2CA3&PID_4011&MI_00&Col02#redacted'), 'Another collection must not match')

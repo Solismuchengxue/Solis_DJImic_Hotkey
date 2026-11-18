@@ -78,12 +78,12 @@
           "end_line": 42
         },
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 67,
           "end_line": 79
         },
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 228,
           "end_line": 255
         }
@@ -98,17 +98,17 @@
       "sublabel": "设备匹配 · 边沿 · 去抖",
       "sources": [
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 56,
           "end_line": 64
         },
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 206,
           "end_line": 225
         },
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 249,
           "end_line": 262
         }
@@ -123,12 +123,12 @@
       "sublabel": "按前台进程选择快捷键",
       "sources": [
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 58,
           "end_line": 64
         },
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 256,
           "end_line": 262
         }
@@ -143,12 +143,12 @@
       "sublabel": "不匹配／重复／暂停",
       "sources": [
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 58,
           "end_line": 64
         },
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 238,
           "end_line": 255
         }
@@ -163,12 +163,12 @@
       "sublabel": "失焦或暂停则放弃",
       "sources": [
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 26,
           "end_line": 30
         },
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 267,
           "end_line": 274
         }
@@ -203,12 +203,12 @@
       "sublabel": "失焦或暂停则放弃",
       "sources": [
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 58,
           "end_line": 64
         },
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 267,
           "end_line": 274
         },
@@ -248,17 +248,17 @@
       "sublabel": "启用且 BlockVolumeUp=1",
       "sources": [
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 38,
           "end_line": 51
         },
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 77,
           "end_line": 85
         },
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 91,
           "end_line": 98
         }
@@ -273,7 +273,7 @@
       "sublabel": "拦截所有设备音量加",
       "sources": [
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 151,
           "end_line": 164
         }
@@ -288,7 +288,7 @@
       "sublabel": "切入前台／改变几何",
       "sources": [
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 174,
           "end_line": 189
         }
@@ -303,7 +303,7 @@
       "sublabel": "仍启用且 mstsc 前台",
       "sources": [
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 185,
           "end_line": 196
         }
@@ -318,17 +318,17 @@
       "sublabel": "托盘操作或开关置 0",
       "sources": [
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 91,
           "end_line": 108
         },
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 124,
           "end_line": 128
         },
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 284,
           "end_line": 296
         }
@@ -343,7 +343,7 @@
       "sublabel": "取消注册、钩子和定时器",
       "sources": [
         {
-          "path": "DJI_Mic_Hotkey.ahk",
+          "path": "app/DJI_Mic_Hotkey.ahk",
           "line": 132,
           "end_line": 147
         }

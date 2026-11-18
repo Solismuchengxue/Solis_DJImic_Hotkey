@@ -1,5 +1,5 @@
 #Requires AutoHotkey v2.0
-#Include ..\app\PortableBinding.ahk
+#Include ..\app\ui\PortableBinding.ahk
 #SingleInstance Off
 
 Check(value, message) {
@@ -107,4 +107,4 @@ try {
 ExitApp result
 
 ; Resolve the real GUI methods without running the application entry point.
-#Include ..\app\Main.ahk
+#Include ..\app\ui\Main.ahk

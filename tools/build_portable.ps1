@@ -194,7 +194,6 @@ try {
     Add-PackageFile 'runtime/AutoHotkey64.exe' (Get-ArchiveEntry $runtimeZip 'AutoHotkey64.exe')
     Add-PackageFile 'LICENSES/AutoHotkey-license.txt' (Get-ArchiveEntry $runtimeZip 'license.txt')
     $sourceFiles = [ordered]@{
-        'app/DJI_Mic_Hotkey.ahk' = 'DJI_Mic_Hotkey.ahk'
         'docs/使用说明.html' = 'docs/portable_quick_start.html'
         'resources/logo.ico' = 'assets/logo.ico'
         'resources/github.png' = 'assets/github.png'
@@ -206,14 +205,11 @@ try {
     foreach ($file in $sourceFiles.GetEnumerator()) {
         Add-PackageFile $file.Key (Get-ArchiveEntry $sourceZip $file.Value)
     }
-    foreach ($name in @('app/Main.ahk', 'app/PortableBinding.ahk', 'config/DJI_Mic_Hotkey.ini')) {
+    foreach ($name in @('app/DJI_Mic_Hotkey.ahk', 'app/ui/Main.ahk', 'app/ui/PortableBinding.ahk', 'config/DJI_Mic_Hotkey.ini')) {
         $null = Get-ArchiveEntry $sourceZip $name
     }
     foreach ($entry in $sourceZip.Entries) {
-        if (!$entry.Name) { continue }
-        if ($entry.FullName.StartsWith('app/', [StringComparison]::Ordinal)) {
-            Add-PackageFile ('app/ui/' + $entry.FullName.Substring(4)) $entry
-        } elseif ($entry.FullName.StartsWith('config/', [StringComparison]::Ordinal)) {
+        if ($entry.Name -and $entry.FullName -cmatch '\A(app|config)/') {
             Add-PackageFile $entry.FullName $entry
         }
     }

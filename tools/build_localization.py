@@ -1,12 +1,15 @@
-"""Build a Chinese UX patch from the verified original installation backup."""
+"""Build a Chinese UX patch from an unmodified AutoHotkey 2.0.31 directory."""
 # Includes AutoHotkeyUX source fragments; GNU GPL v2. See THIRD_PARTY_NOTICES.md.
+import argparse
+import difflib
 from pathlib import Path
 import hashlib
 import json
-import difflib
 
 ROOT = Path(__file__).resolve().parents[1]
-ORIGINAL = ROOT / 'backups' / '20261029_before_changes' / 'UX'
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--original', type=Path, required=True, help='AutoHotkey 2.0.31 directory containing original UX files')
+ORIGINAL = parser.parse_args().original / 'UX'
 OUTPUT = ROOT / 'localization' / 'UX'
 NOTICE = (
     '; Based on AutoHotkeyUX bundled with AutoHotkey v2.0.31.\n'

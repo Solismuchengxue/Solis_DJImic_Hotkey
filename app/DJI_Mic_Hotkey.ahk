@@ -343,7 +343,10 @@ class DjiMicHotkey {
 
 if A_LineFile = A_ScriptFullPath {
     try {
-        Binding := DjiMicHotkey(A_ScriptDir '\DJI_Mic_Hotkey.ini')
+        config := A_ScriptDir '\DJI_Mic_Hotkey.ini'
+        if !FileExist(config)
+            config := A_ScriptDir '\..\config\DJI_Mic_Hotkey.ini'
+        Binding := DjiMicHotkey(config)
         for arg in A_Args
             if SubStr(arg,1,6) = '--log='
                 Binding.LogPath := SubStr(arg,7)

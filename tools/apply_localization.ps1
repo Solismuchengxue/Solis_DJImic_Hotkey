@@ -1,8 +1,14 @@
+param(
+    [Parameter(Mandatory)][string]$BackupDirectory,
+    [string]$InstallRoot = 'D:\AutoHotkey'
+)
+
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$installRoot = 'D:\AutoHotkey'
-$backupRoot = Join-Path $projectRoot 'backups\20261029_before_changes'
+$installRoot = (Resolve-Path -LiteralPath $InstallRoot).ProviderPath
+$backupRoot = (Resolve-Path -LiteralPath $BackupDirectory).ProviderPath
+if ($installRoot -ieq $backupRoot) { throw 'The backup and installation must be separate directories.' }
 $allowed = @('UX/ui-dash.ahk','UX/ui-editor.ahk','UX/ui-launcherconfig.ahk','UX/ui-newscript.ahk','UX/ui-setup.ahk','UX/ui-uninstall.ahk','UX/WindowSpy.ahk')
 $manifest = @(Get-Content -LiteralPath (Join-Path $projectRoot 'localization\manifest.json') -Raw | ConvertFrom-Json)
 if ($manifest.Count -ne $allowed.Count -or @($manifest.path | Select-Object -Unique).Count -ne $allowed.Count) { throw 'Unexpected patch set.' }

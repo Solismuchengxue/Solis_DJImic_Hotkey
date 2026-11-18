@@ -23,12 +23,10 @@ class PortableApp {
                 this.ShowExisting(message)
             ExitApp
         }
-        SplitPath A_LineFile,, &appDir
-        SplitPath appDir, &appDirectoryName, &root
-        packaged := appDirectoryName = 'ui'
-        if packaged
-            SplitPath root,, &root
-        app := this(root, packaged)
+        SplitPath A_LineFile,, &uiDir
+        SplitPath uiDir,, &appDir
+        SplitPath appDir,, &root
+        app := this(root)
         OnMessage(message, ObjBindMethod(app, 'Show'))
         if !DllCall('SetPropW', 'ptr', app.Window.Hwnd, 'str', this.WindowProperty, 'ptr', 1)
             throw OSError()
@@ -54,12 +52,13 @@ class PortableApp {
         throw Error('已有便携实例正在启动或关闭，请稍后再打开。')
     }
 
-    __New(root, packaged := false) {
+    __New(root) {
         this.Root := root
         this.Binding := PortableBinding(root '\config\DJI_Mic_Hotkey.ini')
         this.Binding.OnLegacyConflict := ObjBindMethod(this, 'PauseForLegacy')
-        this.Login := packaged
-            ? StartupLink(A_Startup, root '\DJI 听写.exe', '--tray', root)
+        launcher := root '\DJI 听写.exe'
+        this.Login := FileExist(launcher)
+            ? StartupLink(A_Startup, launcher, '--tray', root)
             : StartupLink(A_Startup, A_AhkPath, '"' A_ScriptFullPath '" --tray', root)
         this.Paused := false
         this.Dialog := false

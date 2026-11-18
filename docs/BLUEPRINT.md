@@ -1,6 +1,6 @@
 # Solis_DJImic_Hotkey 项目蓝图
 
-更新：2026-11-18。原部署已应用常用界面汉化和 DJI 按钮绑定，便携版按[路线图](ROADMAP.md)推进。行为与验收见 [PRD.md](PRD.md)。
+更新日期为 2026-11-19。DJI 听写使用便携版，安装版 AutoHotkey 的汉化独立维护。行为与验收见 [PRD.md](PRD.md)。
 
 ## 两个目标
 

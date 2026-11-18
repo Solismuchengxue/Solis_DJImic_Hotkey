@@ -1,6 +1,6 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Off
-#Include ..\DJI_Mic_Hotkey.ahk
+#Include ..\app\DJI_Mic_Hotkey.ahk
 
 Check(value, message) {
     if !value
