@@ -5,6 +5,8 @@ DJI 听写通过便携版运行。单独安装 AutoHotkey 的用户可查看[汉
 <a id="portable"></a>
 ## 便携版
 
+当前实测设备为 **DJI Mic Mini 2S**。将 USB-C 接收器接到本机并配对发射器，麦克风选择 `Wireless Mic Rx`。
+
 1. 从 [GitHub Releases](https://github.com/Solismuchengxue/Solis_DJImic_Hotkey/releases) 下载 Windows x64 便携 ZIP，完整解压到有写入权限的目录。
 2. 双击 `DJI 听写.exe`。先按[麦克风和 ChatGPT 设置](#chatgpt)验证两端的 `Ctrl+Shift+D`。已有旧脚本正在监听时，先在它自己的托盘退出。
 3. 点「启动绑定」，在聊天输入框短按 DJI 开始听写，再短按结束。可以用「测试 DJI 按钮」查看是否收到按键信号，再回输入框验证转写。
@@ -112,7 +114,7 @@ BlockVolumeUp=0
 
 控制面板入口是 `D:\AutoHotkey\UX\ui-dash.ahk`，可在资源管理器中双击它。`AutoHotkey64.exe` 与 `AutoHotkeyUX.exe` 都是脚本解释器；单独双击 EXE 可能提示找不到同名 `.ahk`，不表示程序损坏。控制面板不负责启停 DJI 绑定，DJI 从自己的托盘菜单操作。
 
-`v2\AutoHotkey64.exe` 用来运行用户脚本；`UX\AutoHotkeyUX.exe` 是供控制面板、版本启动器等界面脚本使用的独立副本。本机两者当前内容相同，后续升级时可能不同，不必互相替换。
+`v2\AutoHotkey64.exe` 用来运行用户脚本。`UX\AutoHotkeyUX.exe` 供控制面板、版本启动器等界面脚本使用。
 
 练习：新建一个单独的 `.ahk`，保存为 UTF-8 带 BOM，然后双击运行：
 

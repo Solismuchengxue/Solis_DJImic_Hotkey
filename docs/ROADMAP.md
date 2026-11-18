@@ -1,6 +1,6 @@
 # 便携版路线图
 
-`v0.1.0` 已发布。当前维护目标为 `v0.1.1`，精简便携包并增加官方 Dash 入口。行为与验收由 [PRD](PRD.md) 定义。详见 [M2 实施计划](milestones/M2_PLAN.md)与 [M3 验收计划](milestones/M3_PLAN.md)。
+`v0.1.0` 已公开发布，实测设备为 DJI Mic Mini 2S。`v0.1.1` 已完成桌面验收并从 GitHub Release 草稿全新部署到本机。正式公开前仍需用同一 ZIP 完成断网解压、实体设备、RDP 和完整登录验收。[M3 验收计划](milestones/M3_PLAN.md)
 
 | 里程碑 | 阶段结果与退出条件 | 依赖 |
 | --- | --- | --- |

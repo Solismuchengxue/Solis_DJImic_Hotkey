@@ -6,15 +6,7 @@
 
 ## ✨ 用途与适用范围
 
-便携版默认使用 `Ctrl+Shift+D`，支持本机和 RDP 输入框听写。其他场景和设备请按[测试步骤](docs/MANUAL.md#verify)检查。
-
-[查看便携版界面概念图](docs/ui/README.md)
-
-## 🗺️ 控制流程
-
-![DJI 麦克风本机与 RDP 听写控制流程](docs/diagrams/dji-local-rdp.png)
-
-[交互版 HTML](docs/diagrams/dji-local-rdp.html)（在文件页下载后用浏览器打开） · [可编辑图源](docs/diagrams/dji-local-rdp.workflow.json)
+当前实测设备为 **DJI Mic Mini 2S**，覆盖本机、RDP 窗口和全屏的 ChatGPT 输入框听写。两端默认快捷键为 `Ctrl+Shift+D`。其他设备和场景请按[测试步骤](docs/MANUAL.md#verify)检查。
 
 ## 🧰 准备条件
 
@@ -32,6 +24,14 @@
 2. 点进本机或 RDP 中的 ChatGPT 输入框，DJI 按一次开始，再按一次结束。
 3. 检查转写文字后发送。
 
+## 界面预览
+
+`v0.1.1` 的 Windows 实际界面。
+
+| 主窗口 | 更改快捷键 | 高级设置 | DJI 按钮测试 |
+| :---: | :---: | :---: | :---: |
+| <img src="docs/ui/actual-main-window.png" alt="主窗口显示绑定状态、本机和 RDP 快捷键及开发者模式" width="175"> | <img src="docs/ui/actual-edit-shortcut.png" alt="更改本机听写快捷键窗口" width="175"> | <img src="docs/ui/actual-advanced-settings.png" alt="高级设置可配置音量加拦截和防重复触发间隔" width="175"> | <img src="docs/ui/actual-button-test.png" alt="DJI 按钮测试窗口等待发射器信号" width="175"> |
+
 ## 🛠️ 日常使用与求助
 
 - **改键**：在主界面更改本机或 RDP 快捷键，并同步 ChatGPT 的单击听写快捷键。
@@ -40,8 +40,14 @@
 
 完整操作见[使用与维护手册](docs/MANUAL.md)；项目目标与验收见 [BLUEPRINT](docs/BLUEPRINT.md) 和 [PRD](docs/PRD.md)。
 
+## 🗺️ 控制流程
+
+![DJI 麦克风本机与 RDP 听写控制流程](docs/diagrams/dji-local-rdp.png)
+
+[交互版 HTML](docs/diagrams/dji-local-rdp.html)（在文件页下载后用浏览器打开） · [可编辑图源](docs/diagrams/dji-local-rdp.workflow.json)
+
 ## 📄 限制与许可
 
 启用音量加拦截时，键盘音量加也会被拦截。便携版默认关闭此项，暂停或退出绑定可恢复音量加。
 
-已验证 AHK v2.0.31，常用界面已汉化，部分内置提示仍为英文。可选装由 wyagd001 发布的[简体中文离线帮助 2.0.19](docs/MANUAL.md#chinese-help)。汉化文件沿用上游 GPL v2，见[来源与许可](THIRD_PARTY_NOTICES.md)。
+安装版汉化适配 AutoHotkey v2.0.31，部分内置提示为英文。可选装 wyagd001 的[简体中文离线帮助 2.0.19](docs/MANUAL.md#chinese-help)。汉化文件沿用上游 GPL v2，见[来源与许可](THIRD_PARTY_NOTICES.md)。
