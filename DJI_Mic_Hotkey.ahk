@@ -4,6 +4,8 @@
 ; The observed DJI Consumer Control collection triggers dictation.
 ; BlockVolumeUp=1 explicitly opts into blocking Volume_Up from every device.
 class DjiMicHotkey {
+    DefaultLocal => '!c'
+    DefaultRemote => '!x'
     __New(configPath) {
         this.ConfigPath := configPath
         this.LoadSettings()
@@ -14,6 +16,8 @@ class DjiMicHotkey {
         this.LogPath := ''
         this.LogCount := 0
         this.Running := false
+        this.Generation := 0
+        this.ExitHandler := ObjBindMethod(this, 'Stop')
         this.VolumeRegistered := false
         this.VolumeHotkeyId := 0x56A
         this.VolumeHandler := ObjBindMethod(this,'OnVolumeMessage')
@@ -23,32 +27,33 @@ class DjiMicHotkey {
         this.LastRdpState := ''
     }
 
-    LoadSettings() {
-        localKey := IniRead(this.ConfigPath, 'Hotkeys', 'Local', '!c')
-        remoteKey := IniRead(this.ConfigPath, 'Hotkeys', 'Remote', '!x')
+    LoadSettings() => this.ApplySettings(this.ReadSettings(this.ConfigPath))
+
+    ReadSettings(path) {
+        localKey := IniRead(path, 'Hotkeys', 'Local', this.DefaultLocal)
+        remoteKey := IniRead(path, 'Hotkeys', 'Remote', this.DefaultRemote)
         if !DjiMicHotkey.ValidShortcut(localKey) || !DjiMicHotkey.ValidShortcut(remoteKey)
             throw Error('快捷键格式无效。示例：!c 表示 Alt+C，^!c 表示 Ctrl+Alt+C。')
-        vid := IniRead(this.ConfigPath, 'Device', 'VID', '2CA3')
-        pid := IniRead(this.ConfigPath, 'Device', 'PID', '4011')
-        iface := IniRead(this.ConfigPath, 'Device', 'Interface', 'MI_00')
-        collection := IniRead(this.ConfigPath, 'Device', 'Collection', 'Col01')
+        vid := IniRead(path, 'Device', 'VID', '2CA3')
+        pid := IniRead(path, 'Device', 'PID', '4011')
+        iface := IniRead(path, 'Device', 'Interface', 'MI_00')
+        collection := IniRead(path, 'Device', 'Collection', 'Col01')
         if !RegExMatch(vid, 'i)^[0-9a-f]{4}$') || !RegExMatch(pid, 'i)^[0-9a-f]{4}$')
             || !RegExMatch(iface, 'i)^MI_[0-9a-f]{2}$') || !RegExMatch(collection, 'i)^Col[0-9a-f]{2}$')
             throw Error('设备标识格式无效。')
-        delay := IniRead(this.ConfigPath, 'Behavior', 'DebounceMs', 250)
+        delay := IniRead(path, 'Behavior', 'DebounceMs', 250)
         if !IsInteger(delay) || delay < 0 || delay > 2000
             throw Error('DebounceMs 必须是 0 到 2000 的整数。')
-        blockVolume := IniRead(this.ConfigPath,'Behavior','BlockVolumeUp',0)
+        blockVolume := IniRead(path,'Behavior','BlockVolumeUp',0)
         if !IsInteger(blockVolume) || (blockVolume != 0 && blockVolume != 1)
             throw Error('BlockVolumeUp 必须为 0 或 1；1 会拦截所有设备的音量加键。')
-        ; Publish all settings together, retaining the old configuration on errors.
-        this.LocalKey := localKey
-        this.RemoteKey := remoteKey
-        this.DeviceToken := 'VID_' vid '&PID_' pid
-        this.Interface := iface
-        this.Collection := collection
-        this.DebounceMs := Integer(delay)
-        this.BlockVolumeUp := blockVolume = 1
+        return {LocalKey: localKey, RemoteKey: remoteKey, DeviceToken: 'VID_' vid '&PID_' pid,
+            Interface: iface, Collection: collection, DebounceMs: Integer(delay), BlockVolumeUp: blockVolume = 1}
+    }
+
+    ApplySettings(settings) {
+        for name, value in settings.OwnProps()
+            this.%name% := value
     }
 
     static ValidShortcut(value) => RegExMatch(value, 'i)^[!^+#]{1,4}(?:[a-z0-9]|F(?:[1-9]|1[0-9]|2[0-4]))$') != 0
@@ -64,19 +69,33 @@ class DjiMicHotkey {
         return StrLower(processName) = 'mstsc.exe' ? this.RemoteKey : this.LocalKey
     }
 
-    Start() {
-        this.Host := Gui('+ToolWindow -Caption', 'DJI 听写绑定')
-        this.RawHandler := ObjBindMethod(this, 'OnRaw')
-        this.DeviceHandler := ObjBindMethod(this, 'DeviceChanged')
-        OnMessage(0xFF, this.RawHandler)
-        OnMessage(0xFE, this.DeviceHandler)
-        registration := Buffer(8+A_PtrSize,0)
-        NumPut('ushort',0x0C,'ushort',1,'uint',0x2100,'ptr',this.Host.Hwnd,registration)
-        if !DllCall('RegisterRawInputDevices','ptr',registration,'uint',1,'uint',8+A_PtrSize)
-            throw OSError()
-        OnExit(ObjBindMethod(this, 'Stop'))
-        this.Running := true
-        this.SetVolumeBlock(this.Enabled && this.BlockVolumeUp)
+    Start(legacyTray := true) {
+        if this.Running
+            return
+        try {
+            this.Host := Gui('+ToolWindow -Caption', 'DJI 听写绑定')
+            this.RawHandler := ObjBindMethod(this, 'OnRaw')
+            this.DeviceHandler := ObjBindMethod(this, 'DeviceChanged')
+            OnMessage(0xFF, this.RawHandler)
+            OnMessage(0xFE, this.DeviceHandler)
+            registration := Buffer(8+A_PtrSize,0)
+            NumPut('ushort',0x0C,'ushort',1,'uint',0x2100,'ptr',this.Host.Hwnd,registration)
+            if !DllCall('RegisterRawInputDevices','ptr',registration,'uint',1,'uint',8+A_PtrSize)
+                throw OSError()
+            this.Running := true
+            OnExit(this.ExitHandler)
+            this.SetVolumeBlock(this.Enabled && this.BlockVolumeUp)
+        } catch as failure {
+            this.Stop()
+            throw failure
+        }
+        if legacyTray
+            this.LegacyTray()
+        this.Log('started','')
+        Persistent(true)
+    }
+
+    LegacyTray() {
         A_TrayMenu.Delete()
         A_TrayMenu.Add('打开快捷键配置', (*) => Run('notepad.exe "' this.ConfigPath '"'))
         A_TrayMenu.Add('重新读取配置', ObjBindMethod(this,'ReloadSettings'))
@@ -84,8 +103,6 @@ class DjiMicHotkey {
         A_TrayMenu.Add()
         A_TrayMenu.Add('退出', (*) => ExitApp())
         this.UpdateTip()
-        this.Log('started','')
-        Persistent(true)
     }
 
     ReloadSettings(*) {
@@ -125,6 +142,7 @@ class DjiMicHotkey {
         if this.Running
             this.SetVolumeBlock(enabled && this.BlockVolumeUp)
         this.Enabled := enabled
+        this.Generation += 1
     }
 
     UpdateTip() => A_IconTip := 'DJI 听写绑定：' (this.Enabled ? '已启用' : '已暂停') '`n本机 ' this.LocalKey ' / RDP ' this.RemoteKey '`n音量加：' (this.VolumeRegistered ? '全部设备已拦截' : '未拦截')
@@ -229,7 +247,7 @@ class DjiMicHotkey {
         header := 8+2*A_PtrSize
         size := 0
         DllCall('GetRawInputData','ptr',lParam,'uint',0x10000003,'ptr',0,'uint*',&size,'uint',header)
-        if size < header+8
+        if !this.Running || size < header+8
             return
         packet := Buffer(size)
         if DllCall('GetRawInputData','ptr',lParam,'uint',0x10000003,'ptr',packet,'uint*',&size,'uint',header) = 0xFFFFFFFF
@@ -259,18 +277,24 @@ class DjiMicHotkey {
             shortcut := this.ProcessPress(handle,pressed,A_TickCount,processName)
             if shortcut != '' {
                 this.Log('detected', StrLower(processName) = 'mstsc.exe' ? 'rdp' : 'local')
-                SetTimer(ObjBindMethod(this,'SendShortcut',shortcut,target),-1)
+                SetTimer(ObjBindMethod(this,'SendShortcut',shortcut,target,this.Generation),-1)
             }
         }
     }
 
-    SendShortcut(shortcut, target) {
-        if !this.Enabled || WinExist('A') != target {
+    CanSend(target, generation) {
+        return this.Running && this.Enabled && generation = this.Generation && target && WinExist('A') = target
+    }
+
+    static SendSequence(shortcut) => RegExReplace(shortcut, 'i)(F\d+)$', '{$1}')
+
+    SendShortcut(shortcut, target, generation) {
+        if !this.CanSend(target, generation) {
             this.Log('skipped_focus_changed','')
             return
         }
         SetKeyDelay 30,30
-        SendEvent shortcut
+        SendEvent DjiMicHotkey.SendSequence(shortcut)
         this.Log('sent', shortcut)
     }
 
@@ -283,16 +307,26 @@ class DjiMicHotkey {
 
     Stop(*) {
         this.SetVolumeBlock(false)
-        if !this.Running
-            return
+        this.Generation += 1
+        wasRunning := this.Running
         this.Running := false
-        registration := Buffer(8+A_PtrSize,0)
-        NumPut('ushort',0x0C,'ushort',1,'uint',1,'ptr',0,registration)
-        DllCall('RegisterRawInputDevices','ptr',registration,'uint',1,'uint',8+A_PtrSize)
+        if wasRunning {
+            registration := Buffer(8+A_PtrSize,0)
+            NumPut('ushort',0x0C,'ushort',1,'uint',1,'ptr',0,registration)
+            DllCall('RegisterRawInputDevices','ptr',registration,'uint',1,'uint',8+A_PtrSize)
+            OnExit(this.ExitHandler, 0)
+        }
         if HasProp(this,'RawHandler')
             OnMessage(0xFF,this.RawHandler,0)
         if HasProp(this,'DeviceHandler')
             OnMessage(0xFE,this.DeviceHandler,0)
+        if this.HasOwnProp('Host') {
+            this.Host.Destroy()
+            this.DeleteProp('Host')
+        }
+        this.Devices.Clear()
+        this.Pressed.Clear()
+        this.LastTrigger := -100000
         this.Log('stopped','')
     }
 }

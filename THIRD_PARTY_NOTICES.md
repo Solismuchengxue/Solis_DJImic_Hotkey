@@ -10,4 +10,6 @@
 
 可选的 AutoHotkey v2 简体中文 CHM 由 wyagd001 翻译并发布。本仓库提供来源、版本和 SHA256 清单，安装时从译者仓库下载。[译者主页](https://wyagd001.github.io/) · [帮助文件清单](localization/help_manifest.json)
 
+`assets/github.png` 是 GitHub 官方品牌包中的 `GitHub_Invertocat_Black.png`。界面仅用它标识跳转至 GitHub 项目手册的链接。GitHub 及 Invertocat 商标归 GitHub, Inc. 所有。[品牌使用说明](https://brand.github.com/foundations/logo)
+
 `docs/diagrams/dji-local-rdp.html` 的查看器由 Archify 3.2.0 生成，其运行时代码沿用 [Archify 的 MIT 许可](LICENSES/Archify-MIT.txt)，著作权归 tt-a1i 与 Cocoon AI。HTML 内嵌的 JetBrains Mono 字体沿用 SIL Open Font License 1.1，完整许可已随字体 CSS 嵌入 HTML。流程内容与图源由本项目维护。
