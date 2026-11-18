@@ -24,7 +24,7 @@
 
 从 [GitHub 仓库](https://github.com/Solismuchengxue/Solis_DJImic_Hotkey) 选择 Code → Download ZIP 并解压。按[安装步骤](docs/MANUAL.md#install)操作：安装 AHK v2.0.31 → 备份汉化 → 配置 ChatGPT → 部署 DJI 脚本 → 测试。
 
-便携版下载位置为 [GitHub Releases](https://github.com/Solismuchengxue/Solis_DJImic_Hotkey/releases)。`v0.1.0` 完成真机验收后发布。解压便携 ZIP 后双击 `DJI 听写.exe`，按[便携版步骤](docs/MANUAL.md#portable)启用。
+已发布的便携版可从 [GitHub Releases](https://github.com/Solismuchengxue/Solis_DJImic_Hotkey/releases) 下载。解压便携 ZIP 后双击 `DJI 听写.exe`，按[便携版步骤](docs/MANUAL.md#portable)启用。
 
 ## 🎬 第一次使用
 
