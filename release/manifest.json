@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "version": "v0.1.0",
+  "version": "v0.1.1",
   "outputDirectory": "release/<version>/<short-commit>/",
   "autoHotkey": {
     "version": "2.0.31",

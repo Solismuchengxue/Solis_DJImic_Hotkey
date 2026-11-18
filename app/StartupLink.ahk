@@ -3,10 +3,10 @@
 class StartupLink {
     static Marker := 'Solis_DJImic_Hotkey portable startup v1'
 
-    __New(folder, interpreter, script, root) {
+    __New(folder, target, arguments, root) {
         this.Path := folder '\DJI 听写.lnk'
-        this.Interpreter := interpreter
-        this.Arguments := '"' script '" --tray'
+        this.Target := target
+        this.Arguments := arguments
         this.Root := root
     }
 
@@ -20,7 +20,7 @@ class StartupLink {
             return 'foreign'
         if description != StartupLink.Marker
             return 'foreign'
-        return target = this.Interpreter && directory = this.Root && arguments = this.Arguments ? 'enabled' : 'stale'
+        return target = this.Target && directory = this.Root && arguments = this.Arguments ? 'enabled' : 'stale'
     }
 
     SetEnabled(enabled) {
@@ -42,7 +42,7 @@ class StartupLink {
         if FileExist(staged)
             throw Error('有未完成的临时启动快捷方式，请稍后重试。')
         try {
-            FileCreateShortcut this.Interpreter, staged, this.Root, this.Arguments, StartupLink.Marker
+            FileCreateShortcut this.Target, staged, this.Root, this.Arguments, StartupLink.Marker
             if this.Status(staged) != 'enabled'
                 throw Error('启动快捷方式读回不一致，请检查便携目录。')
             if this.Status() != state

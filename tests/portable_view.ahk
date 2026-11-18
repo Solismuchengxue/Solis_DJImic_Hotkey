@@ -33,6 +33,14 @@ try {
     view := ViewFixture(projectRoot)
     view.Window.Show('x-3000 y-3000 w488 h368 NA')
     button := view.StartButton
+    developer := false
+    for _, control in view.Window {
+        if control.Type = 'Button' && control.Text = '开发者模式' {
+            developer := true
+            break
+        }
+    }
+    Check(developer, 'Developer mode must have a native button in the main window')
     Check(!(WinGetStyle(view.Window) & 0x10000), 'Main window must not advertise WS_MAXIMIZEBOX')
     Check((WinGetStyle(view.AutoStart) & 0x120) = 0x120 && view.AutoStart.Type = 'CheckBox', 'Right-hand native checkbox must retain its label')
     for key, field in view.KeyLabels

@@ -24,8 +24,11 @@ class PortableApp {
             ExitApp
         }
         SplitPath A_LineFile,, &appDir
-        SplitPath appDir,, &root
-        app := this(root)
+        SplitPath appDir, &appDirectoryName, &root
+        packaged := appDirectoryName = 'ui'
+        if packaged
+            SplitPath root,, &root
+        app := this(root, packaged)
         OnMessage(message, ObjBindMethod(app, 'Show'))
         if !DllCall('SetPropW', 'ptr', app.Window.Hwnd, 'str', this.WindowProperty, 'ptr', 1)
             throw OSError()
@@ -51,11 +54,13 @@ class PortableApp {
         throw Error('已有便携实例正在启动或关闭，请稍后再打开。')
     }
 
-    __New(root) {
+    __New(root, packaged := false) {
         this.Root := root
         this.Binding := PortableBinding(root '\config\DJI_Mic_Hotkey.ini')
         this.Binding.OnLegacyConflict := ObjBindMethod(this, 'PauseForLegacy')
-        this.Login := StartupLink(A_Startup, A_AhkPath, A_ScriptFullPath, root)
+        this.Login := packaged
+            ? StartupLink(A_Startup, root '\DJI 听写.exe', '--tray', root)
+            : StartupLink(A_Startup, A_AhkPath, '"' A_ScriptFullPath '" --tray', root)
         this.Paused := false
         this.Dialog := false
         icon := this.Resource('logo.ico')
@@ -108,12 +113,26 @@ class PortableApp {
         helpIcon := w.AddPicture('x22 y337 w17 h17', this.Resource('github.png'))
         helpIcon.OnEvent('Click', (*) => Run(PortableApp.ManualURL))
         help := w.AddLink('x46 y335 w120 h24', '<a href="' PortableApp.ManualURL '">使用说明</a>')
+        developer := w.AddButton('x186 y331 w116 h28', '开发者模式')
+        developer.OnEvent('Click', ObjBindMethod(this, 'OpenDeveloperTools'))
         versionFile := this.Root '\resources\release.json'
         if !FileExist(versionFile)
             versionFile := this.Root '\release\manifest.json'
         if !RegExMatch(FileRead(versionFile, 'UTF-8'), '"version"\s*:\s*"(v\d+\.\d+\.\d+)"', &version)
             throw Error('无法读取便携版版本信息。')
         w.AddText('x330 y336 w134 Right c677889', version[1])
+    }
+
+    OpenDeveloperTools(*) {
+        runtime := this.Root '\runtime\AutoHotkey64.exe'
+        dash := this.Root '\runtime\UX\ui-dash.ahk'
+        try {
+            if !FileExist(runtime) || !FileExist(dash)
+                throw Error('请从完整的便携包打开开发者模式。')
+            Run Format('"{}" /script "{}"', runtime, dash), this.Root '\runtime'
+        } catch as failure {
+            this.Warn(failure)
+        }
     }
 
     static PaintPrimary(button, notice) {

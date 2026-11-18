@@ -41,11 +41,6 @@ function Read-ArchiveJson([IO.Compression.ZipArchive]$Archive, [string]$Name) {
     try { return ($reader.ReadToEnd() | ConvertFrom-Json -Depth 16) } finally { $reader.Dispose() }
 }
 
-function Get-EntrySha256([IO.Compression.ZipArchiveEntry]$Entry) {
-    $stream = $Entry.Open()
-    try { return (Get-FileHash -InputStream $stream -Algorithm SHA256).Hash } finally { $stream.Dispose() }
-}
-
 function Copy-VerifiedArchive([string]$Name, [string]$ExpectedHash) {
     if ($ExpectedHash -notmatch '\A[0-9a-f]{64}\z') { throw "发布清单缺少有效的 SHA256：$Name" }
     $inputPath = Join-Path $UpstreamDirectory $Name
@@ -54,6 +49,51 @@ function Copy-VerifiedArchive([string]$Name, [string]$ExpectedHash) {
     $actualHash = (Get-FileHash -LiteralPath $copy -Algorithm SHA256).Hash
     if ($actualHash -ne $ExpectedHash) { throw "上游归档 SHA256 不一致：$Name（实际 $actualHash）" }
     return $copy
+}
+
+function Build-Launcher([IO.Compression.ZipArchive]$Archive, [string]$Directory) {
+    $vswhere = Join-Path ([Environment]::GetFolderPath('ProgramFilesX86')) 'Microsoft Visual Studio/Installer/vswhere.exe'
+    if (!(Test-Path -LiteralPath $vswhere -PathType Leaf)) { throw '构建启动入口需要 Visual Studio 或 Visual Studio Build Tools 的 MSVC x64 工具和 Windows SDK。' }
+    $installation = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+    if ($LASTEXITCODE -ne 0 -or !$installation) { throw '找不到 Visual Studio 的 MSVC x64 工具。' }
+    $vcvars = Join-Path $installation 'VC/Auxiliary/Build/vcvars64.bat'
+    if (!(Test-Path -LiteralPath $vcvars -PathType Leaf)) { throw '找不到 MSVC x64 构建入口。' }
+
+    [IO.Compression.ZipFileExtensions]::ExtractToFile((Get-ArchiveEntry $Archive 'launcher/main.c'), (Join-Path $Directory 'main.c'))
+    [IO.Compression.ZipFileExtensions]::ExtractToFile((Get-ArchiveEntry $Archive 'assets/logo.ico'), (Join-Path $Directory 'logo.ico'))
+    [IO.File]::WriteAllText((Join-Path $Directory 'launcher.rc'), '1 ICON "logo.ico"', $utf8)
+    $buildCommands = @'
+@echo off
+call "%SOLIS_LAUNCHER_VCVARS%" >nul
+if errorlevel 1 exit /b 1
+rc.exe /nologo launcher.rc
+if errorlevel 1 exit /b 1
+cl.exe /nologo /utf-8 /MT /O1 /W4 /WX /Brepro /Fe:launcher.exe main.c launcher.res user32.lib /link /SUBSYSTEM:WINDOWS /Brepro
+exit /b %errorlevel%
+'@
+    [IO.File]::WriteAllText((Join-Path $Directory 'build-launcher.cmd'), ($buildCommands -replace '\r?\n', "`r`n"), $utf8)
+    $start = [Diagnostics.ProcessStartInfo]::new((Join-Path ([Environment]::SystemDirectory) 'cmd.exe'))
+    $start.UseShellExecute = $false
+    $start.CreateNoWindow = $true
+    $start.RedirectStandardOutput = $true
+    $start.RedirectStandardError = $true
+    $start.WorkingDirectory = $Directory
+    $start.Environment['SOLIS_LAUNCHER_VCVARS'] = $vcvars
+    $start.ArgumentList.Add('/d')
+    $start.ArgumentList.Add('/c')
+    $start.ArgumentList.Add('build-launcher.cmd')
+    $process = [Diagnostics.Process]::Start($start)
+    try {
+        $stdout = $process.StandardOutput.ReadToEndAsync()
+        $stderr = $process.StandardError.ReadToEndAsync()
+        if (!$process.WaitForExit(90000)) {
+            $process.Kill($true)
+            $process.WaitForExit()
+            throw '构建启动入口超时。'
+        }
+        if ($process.ExitCode -ne 0) { throw "构建启动入口失败：$($stdout.Result)`n$($stderr.Result)" }
+    } finally { $process.Dispose() }
+    Get-Item -LiteralPath (Join-Path $Directory 'launcher.exe')
 }
 
 function Add-PackageFile([string]$Name, $Content) {
@@ -88,8 +128,8 @@ function Write-PackageZip([string]$Path) {
             $entry.ExternalAttributes = [int][IO.FileAttributes]::Archive
             $target = $entry.Open()
             try {
-                if ($file.Value -is [IO.Compression.ZipArchiveEntry]) {
-                    $source = $file.Value.Open()
+                if ($file.Value -is [IO.Compression.ZipArchiveEntry] -or $file.Value -is [IO.FileInfo]) {
+                    $source = if ($file.Value -is [IO.FileInfo]) { $file.Value.OpenRead() } else { $file.Value.Open() }
                     try { $source.CopyTo($target) } finally { $source.Dispose() }
                 } else {
                     $bytes = $utf8.GetBytes([string]$file.Value)
@@ -150,18 +190,16 @@ try {
 
     $packageNames = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
     $packageFiles = [Collections.Generic.SortedDictionary[string, object]]::new([StringComparer]::Ordinal)
-    Add-PackageFile 'DJI 听写.exe' (Get-ArchiveEntry $runtimeZip 'AutoHotkey64.exe')
-    Add-PackageFile 'DJI 听写.ahk' "#Requires AutoHotkey v2.0`n#Include %A_ScriptDir%\app\Main.ahk`n"
-    foreach ($name in @('AutoHotkey.chm', 'license.txt')) {
-        Add-PackageFile $name (Get-ArchiveEntry $runtimeZip $name)
-    }
+    Add-PackageFile 'DJI 听写.exe' (Build-Launcher $sourceZip (Get-BuildDirectory (Join-Path $scratch 'launcher')))
+    Add-PackageFile 'runtime/AutoHotkey64.exe' (Get-ArchiveEntry $runtimeZip 'AutoHotkey64.exe')
+    Add-PackageFile 'LICENSES/AutoHotkey-license.txt' (Get-ArchiveEntry $runtimeZip 'license.txt')
     $sourceFiles = [ordered]@{
-        'DJI_Mic_Hotkey.ahk' = 'DJI_Mic_Hotkey.ahk'
-        '使用说明.html' = 'docs/portable_quick_start.html'
+        'app/DJI_Mic_Hotkey.ahk' = 'DJI_Mic_Hotkey.ahk'
+        'docs/使用说明.html' = 'docs/portable_quick_start.html'
         'resources/logo.ico' = 'assets/logo.ico'
         'resources/github.png' = 'assets/github.png'
         'resources/release.json' = 'release/manifest.json'
-        'THIRD_PARTY_NOTICES.md' = 'THIRD_PARTY_NOTICES.md'
+        'LICENSES/THIRD_PARTY_NOTICES.md' = 'THIRD_PARTY_NOTICES.md'
         'LICENSES/GPL-2.0.txt' = 'LICENSES/GPL-2.0.txt'
         'LICENSES/Archify-MIT.txt' = 'LICENSES/Archify-MIT.txt'
     }
@@ -172,31 +210,19 @@ try {
         $null = Get-ArchiveEntry $sourceZip $name
     }
     foreach ($entry in $sourceZip.Entries) {
-        if ($entry.Name.Length -gt 0 -and $entry.FullName -cmatch '\A(app|config)/') {
+        if (!$entry.Name) { continue }
+        if ($entry.FullName.StartsWith('app/', [StringComparison]::Ordinal)) {
+            Add-PackageFile ('app/ui/' + $entry.FullName.Substring(4)) $entry
+        } elseif ($entry.FullName.StartsWith('config/', [StringComparison]::Ordinal)) {
             Add-PackageFile $entry.FullName $entry
         }
     }
     $buildInfo = [ordered]@{ sourceCommit = $sourceCommit } | ConvertTo-Json -Compress
     Add-PackageFile 'resources/build.json' "$buildInfo`n"
 
-    $patches = @(Read-ArchiveJson $sourceZip 'localization/manifest.json')
-    $patchedFiles = [Collections.Generic.Dictionary[string, IO.Compression.ZipArchiveEntry]]::new([StringComparer]::Ordinal)
-    if ($patches.Count -ne 7) { throw '应有 7 个已验证的 UX 汉化文件。' }
-    foreach ($patch in $patches) {
-        $name = [string]$patch.path
-        if ($name -cnotmatch '\AUX/[^/]+\.ahk\z') { throw "UX 汉化路径无效：$name" }
-        $original = Get-ArchiveEntry $runtimeZip $name
-        $localized = Get-ArchiveEntry $sourceZip "localization/$name"
-        if ((Get-EntrySha256 $original) -ne $patch.original_sha256 -or (Get-EntrySha256 $localized) -ne $patch.localized_sha256) {
-            throw "UX 文件 SHA256 不一致：$name"
-        }
-        $patchedFiles.Add($name, $localized)
-    }
     foreach ($entry in $runtimeZip.Entries) {
         if ($entry.Name.Length -eq 0 -or !$entry.FullName.StartsWith('UX/', [StringComparison]::Ordinal)) { continue }
-        $name = $entry.FullName
-        if ($patchedFiles.ContainsKey($name)) { Add-PackageFile $name $patchedFiles[$name] }
-        else { Add-PackageFile $name $entry }
+        Add-PackageFile ('runtime/' + $entry.FullName) $entry
     }
 
     $outputStage = Get-BuildDirectory (Join-Path $scratch 'output')

@@ -103,12 +103,12 @@ try {
     script := fixture '\DJI 听写.ahk'
     FileAppend '', script
     root := fixture
-    target := StartupLink(root '\Startup', A_AhkPath, root '\DJI 听写.ahk', root)
+    target := StartupLink(root '\Startup', A_AhkPath, '"' script '" --tray', root)
     Check(target.Status() = 'missing', 'Isolated Startup begins empty')
     target.SetEnabled(true)
     target.SetEnabled(true)
     Check(target.Status() = 'enabled', 'Shortcut must resolve the interpreter, exact script, --tray, directory and owner')
-    moved := StartupLink(root '\Startup', A_AhkPath, root '\另一个 目录\DJI 听写.ahk', root)
+    moved := StartupLink(root '\Startup', A_AhkPath, '--tray', root)
     Check(moved.Status() = 'stale', 'A moved installation must detect its stale managed shortcut')
     moved.SetEnabled(true)
     Check(moved.Status() = 'enabled' && target.Status() = 'stale', 'An explicit enable repairs stale owned links')

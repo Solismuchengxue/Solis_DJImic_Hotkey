@@ -5,11 +5,13 @@
 <a id="portable"></a>
 ## 便携版
 
-1. 从 [GitHub Releases](https://github.com/Solismuchengxue/Solis_DJImic_Hotkey/releases) 下载 Windows x64 便携 ZIP，完整解压到有写入权限的目录。`v0.1.0` 待真机验收后发布。
+1. 从 [GitHub Releases](https://github.com/Solismuchengxue/Solis_DJImic_Hotkey/releases) 下载 Windows x64 便携 ZIP，完整解压到有写入权限的目录。
 2. 双击 `DJI 听写.exe`。先按[麦克风和 ChatGPT 设置](#chatgpt)验证两端的 `Ctrl+Shift+D`。已有旧脚本正在监听时，先在它自己的托盘退出。
 3. 点「启动绑定」，在聊天输入框短按 DJI 开始听写，再短按结束。可以用「测试 DJI 按钮」查看是否收到按键信号，再回输入框验证转写。
 4. 改键后同步 ChatGPT 的「单击快捷键」。高级设置可调整防重复触发间隔，默认 `250` 毫秒。按需打开「音量加拦截」，开启后键盘音量加也会被拦截。
 5. 主窗口与托盘均可切换「开机自启」，默认关闭。切换后可注销并重新登录，检查托盘状态和按钮听写。移动前先退出，移动后打开程序检查并修复开机自启。
+
+从 `v0.1.1` 起，双击根目录的 `DJI 听写.exe`，启动器会调用 `runtime/` 中的官方 AutoHotkey。点「开发者模式」可打开原版 AutoHotkey Dash。产品离线说明在 `docs/使用说明.html`，Dash 的编程帮助使用官方网页。
 
 关闭窗口时，运行或暂停中的程序留在托盘。要结束程序，从托盘退出。升级时把旧包 `config/DJI_Mic_Hotkey.ini` 复制到新版对应位置，再启动新版并验证两端听写。
 
