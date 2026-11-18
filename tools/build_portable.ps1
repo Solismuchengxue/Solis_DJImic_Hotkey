@@ -200,7 +200,7 @@ try {
     }
 
     $outputStage = Get-BuildDirectory (Join-Path $scratch 'output')
-    $packageName = "DJI_Dictation_${version}_windows-x64.zip"
+    $packageName = "Solis_DJImic_Hotkey_${version}_windows-x64.zip"
     Write-PackageZip (Join-Path $outputStage $packageName)
     [IO.File]::Copy($upstreamSourcePath, (Join-Path $outputStage $sourceName))
     $hashLines = foreach ($name in @($sourceName, $packageName)) {
